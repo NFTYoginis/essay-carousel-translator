@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>essay-carousel-translator — a converter with a contract</title>
+<meta name="description" content="A folder-based AI translator that turns one incident-driven teaching essay into a fixed 8-slide carousel, every citation checked against the source, offline, before it ships.">
+<meta property="og:title" content="essay-carousel-translator">
+<meta property="og:description" content="Same shape in, same shape out. Every claim traced back to its source paragraph and sentence, checked by an offline verifier before it ships.">
+<meta property="og:image" content="https://nftyoginis.github.io/essay-carousel-translator/og-image.png">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#faf8f3; --ink:#1a1a1a; --muted:#5b5b5b; --accent:#b5731a; --surface:#fdf3e2;
+    --line:#e7dfd0; --mono-bg:#20201c; --mono-ink:#e9e4d8; --pass:#3f7d4a; --fail:#a4342a;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:0 24px;}
+  nav{
+    position:sticky; top:0; z-index:10; background:rgba(250,248,243,0.92);
+    backdrop-filter:blur(6px); border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; padding:14px 24px;}
+  .brand{font-weight:700; letter-spacing:-0.01em;}
+  .brand small{display:block; font-weight:400; color:var(--muted); font-size:12px;}
+  nav ul{list-style:none; display:flex; gap:22px; margin:0; padding:0;}
+  nav a{color:var(--ink); text-decoration:none; font-size:14px;}
+  nav a:hover{color:var(--accent);}
+  .cta{
+    background:var(--accent); color:#fff; padding:9px 16px; border-radius:6px;
+    font-size:14px; font-weight:600;
+  }
+  .cta:hover{opacity:0.9; color:#fff;}
+  header.hero{padding:76px 0 56px;}
+  .eyebrow{
+    display:inline-block; background:var(--surface); border:1px solid var(--line);
+    color:var(--accent); font-size:12px; font-weight:700; letter-spacing:0.04em;
+    text-transform:uppercase; padding:5px 10px; border-radius:999px; margin-bottom:18px;
+  }
+  h1{font-size:2.6rem; line-height:1.12; margin:0 0 18px; letter-spacing:-0.02em; max-width:820px;}
+  .sub{font-size:1.15rem; color:var(--muted); max-width:640px; margin:0 0 30px;}
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    display:inline-block; padding:12px 20px; border-radius:7px; font-weight:600;
+    text-decoration:none; font-size:15px; border:1px solid transparent;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{opacity:0.9;}
+  .btn-secondary{background:transparent; color:var(--ink); border-color:var(--line);}
+  .btn-secondary:hover{border-color:var(--accent); color:var(--accent);}
+  section{padding:52px 0;}
+  section.alt{background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  h2{font-size:1.7rem; letter-spacing:-0.01em; margin:0 0 8px;}
+  .section-sub{color:var(--muted); margin:0 0 30px; max-width:680px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:10px; padding:20px;
+  }
+  .card h3{margin:0 0 8px; font-size:1.05rem;}
+  .card p{margin:0; color:var(--muted); font-size:14px;}
+  .role-list{margin:0; padding:0; list-style:none; display:grid; gap:10px;}
+  .role-list li{
+    display:flex; gap:12px; align-items:baseline; background:#fff; border:1px solid var(--line);
+    border-radius:8px; padding:12px 14px;
+  }
+  .role-num{
+    font-weight:700; color:var(--accent); font-size:13px; min-width:20px;
+  }
+  .role-name{font-weight:600; min-width:200px;}
+  .role-desc{color:var(--muted); font-size:14px;}
+  pre{
+    background:var(--mono-bg); color:var(--mono-ink); padding:18px; border-radius:10px;
+    overflow-x:auto; font-size:13px; line-height:1.6;
+  }
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  .pass{color:#8fd39a;}
+  .fail{color:#e2867d;}
+  .terminal-title{font-size:12px; color:var(--muted); margin-bottom:8px; letter-spacing:0.03em; text-transform:uppercase;}
+  .fixture-table{width:100%; border-collapse:collapse; font-size:14px; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .fixture-table th, .fixture-table td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .fixture-table th{background:var(--surface); font-size:12px; text-transform:uppercase; letter-spacing:0.03em; color:var(--muted);}
+  .fixture-table tr:last-child td{border-bottom:none;}
+  .tag{display:inline-block; font-size:11px; font-weight:700; padding:2px 7px; border-radius:5px;}
+  .tag-real{background:#e4efe6; color:var(--pass);}
+  .tag-attack{background:#f5e3e0; color:var(--fail);}
+  ol.steps{padding-left:22px; max-width:640px;}
+  ol.steps li{margin-bottom:14px;}
+  .proof-block{
+    border:1px dashed var(--line); border-radius:10px; padding:26px; text-align:center;
+    color:var(--muted); background:#fff;
+  }
+  details{
+    background:#fff; border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:10px;
+  }
+  summary{font-weight:600; cursor:pointer;}
+  details p{color:var(--muted); margin:10px 0 0;}
+  footer{padding:40px 0; border-top:1px solid var(--line); color:var(--muted); font-size:13px;}
+  footer a{color:var(--accent);}
+  .footline{display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  @media (max-width:720px){
+    h1{font-size:2rem;}
+    .grid3, .grid2{grid-template-columns:1fr;}
+    nav ul{display:none;}
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#17140f; --ink:#f0ece1; --muted:#a89f8d; --accent:#e0983f; --surface:#211c15;
+      --line:#332c22; --mono-bg:#0d0c09; --mono-ink:#e9e4d8;
+    }
+    :root:not([data-theme="light"]) nav{background:rgba(23,20,15,0.92);}
+    :root:not([data-theme="light"]) .card, :root:not([data-theme="light"]) .fixture-table, :root:not([data-theme="light"]) details, :root:not([data-theme="light"]) .proof-block, :root:not([data-theme="light"]) .role-list li{
+      background:#20190f;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17140f; --ink:#f0ece1; --muted:#a89f8d; --accent:#e0983f; --surface:#211c15;
+    --line:#332c22; --mono-bg:#0d0c09; --mono-ink:#e9e4d8;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">essay-carousel-translator<small>By Gabe — Your AI Specialist</small></div>
+    <ul>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#samples">Sample output</a></li>
+      <li><a href="#proof">Tested by trying to break it</a></li>
+      <li><a href="#setup">Setup</a></li>
+    </ul>
+    <a class="cta" href="#setup">Try it</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Skool Comp #13 — "The Translator"</span>
+    <h1>A converter with a contract, not a summarizer with good intentions.</h1>
+    <p class="sub">Turns one incident-driven teaching essay into a fixed 8-slide carousel — same shape every
+    run, every claim traced back to the exact paragraph and sentence it came from, checked by an offline
+    verifier before anything ships. Nothing invented. Nothing that matters silently dropped.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#samples">See a real translation</a>
+      <a class="btn btn-secondary" href="#proof">Watch it get attacked</a>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <h2>What you get</h2>
+    <p class="section-sub">Eight fixed roles, every run, in this order. A role with nothing to fill it says
+    so — it never guesses.</p>
+    <ul class="role-list">
+      <li><span class="role-num">1</span><span class="role-name">Hook</span><span class="role-desc">the essay's own opening tension/contradiction</span></li>
+      <li><span class="role-num">2</span><span class="role-name">Incident</span><span class="role-desc">the concrete event that happened</span></li>
+      <li><span class="role-num">3</span><span class="role-name">Reveal</span><span class="role-desc">what turned out to be true, contradicting the first guess</span></li>
+      <li><span class="role-num">4</span><span class="role-name">Insight</span><span class="role-desc">the compressed, quotable lesson</span></li>
+      <li><span class="role-num">5</span><span class="role-name">Rule-or-Citation</span><span class="role-desc">a named external source, if the essay cites one — else "not in source"</span></li>
+      <li><span class="role-num">6</span><span class="role-name">Confirmation-at-scale</span><span class="role-desc">evidence the pattern isn't a one-off, if present</span></li>
+      <li><span class="role-num">7</span><span class="role-name">Mechanism</span><span class="role-desc">the underlying structural fix, if described</span></li>
+      <li><span class="role-num">8</span><span class="role-name">Close</span><span class="role-desc">the essay's own final thought — no CTA, no link</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>How grounding actually works</h2>
+    <p class="section-sub">Every populated field carries one or more citations — a quote plus a
+    <code>p&lt;N&gt;s&lt;M&gt;</code> coordinate (paragraph, sentence). <code>verify.py</code> checks each
+    quote as a literal substring of that specific location, ±1 sentence for boundary drift, never crossing
+    into a neighboring paragraph. A real fact cited under the wrong-but-nearby location still fails — that
+    narrowness is the whole point. Full mechanism in <a href="https://github.com/NFTYoginis/essay-carousel-translator/blob/main/reference/grounding-methodology.md">reference/grounding-methodology.md</a>.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Grounded correctly</h3>
+        <p><code>{"quote": "build it, use it, trust it, and then orchestrate it", "loc": "p5s1"}</code> —
+        checked against paragraph 5, sentence 1's window. Found. Passes.</p>
+      </div>
+      <div class="card">
+        <h3>Caught as a failure</h3>
+        <p><code>{"quote": "...nineteen retries...", "loc": "p1s2"}</code> — the real 19-retries fact,
+        cited under the wrong (12-retries) paragraph. Not found there. Fails — on purpose.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="samples">
+  <div class="wrap">
+    <h2>Sample output</h2>
+    <p class="section-sub">Two slides from a real translation of a real essay
+    (<code>fixtures/essay-1-dont-automate.md</code>) — full output in <code>fixtures/essay-1-dont-automate.output.json</code>.</p>
+    <div class="terminal-title">essay-1-dont-automate.output.json (excerpt)</div>
+    <pre><code>{"role": "Insight",
+ "text": "I'd tested the script. I hadn't tested the absence of me.",
+ "citations": [
+   {"quote": "I'd tested the script.", "loc": "p4s1"},
+   {"quote": "I hadn't tested the absence of me.", "loc": "p4s2"}
+ ]}
+
+{"role": "Rule-or-Citation",
+ "text": "Kieran Klaassen has a name for the order: build it, use it, trust it, and then orchestrate it.",
+ "citations": [
+   {"quote": "build it, use it, trust it, and then orchestrate it", "loc": "p5s1"}
+ ]}</code></pre>
+    <p class="section-sub" style="margin-top:18px;">On a different real essay with no named citation
+    (<code>fixtures/essay-3-demo-bugs.md</code>), the same role correctly resolves to
+    <code>"not in source"</code> — not a shorter guess, the literal field.</p>
+  </div>
+</section>
+
+<section id="proof" class="alt">
+  <div class="wrap">
+    <h2>Tested by trying to break it</h2>
+    <p class="section-sub">Four adversarial checks, run live, each printed with the real incident or
+    comp lesson it encodes — not a README paragraph asking you to trust it.</p>
+    <div class="terminal-title">$ python3 verify.py --judge-mode</div>
+    <pre><code>essay-carousel-translator --judge-mode
+Four adversarial checks. Each one encodes a named failure this build was built to resist.
+
+-- neighbor-swap-decoy.md --
+   Skool Comp #12 'The Auditor' lesson, ported: a real value cited under the wrong
+   location beat 7/20 entries including this build family's own ancestor.
+   <span class="pass">[PASS]</span> caught: "...nineteen retries..." NOT found in the source window at p1s2
+
+-- misspelled-name.md --
+   the brief's own named disqualifying-invention example: a name "corrected" to the
+   version that's usually right, instead of preserved as written.
+   <span class="pass">[PASS]</span> caught: "...Alex Petrosian..." NOT found in the source window at p1s2
+
+-- garbage-input.txt --
+   the can-spam-auditor 2026-09-05 incident, ported: garbage input must refuse to
+   parse, not produce a confident carousel from noise.
+   <span class="pass">[PASS]</span> refused to parse (NotATeachingEssayError)
+
+-- repeated-never-stated.md --
+   volume of discussion is not the same as a stated, groundable claim.
+   <span class="pass">[PASS]</span> caught: "...nobody owned the flaky test..." NOT found in the source window
+
+JUDGE-MODE PASSED -- all four confirmed live, right now</code></pre>
+    <p class="section-sub" style="margin-top:16px;">Six more fixtures — a truncated source, a buried fact
+    stated once and never restated, a self-corrected date, and an exemplar-leakage test — run every time in
+    <code>verify.py --selftest</code> (10 fixture pairs, 65 grounding checks). Full table in
+    <a href="https://github.com/NFTYoginis/essay-carousel-translator/blob/main/fixtures/manifest.md">fixtures/manifest.md</a>.</p>
+    <table class="fixture-table" style="margin-top:18px;">
+      <tr><th>Fixture</th><th>Type</th><th>Proves</th></tr>
+      <tr><td>3 real essays</td><td><span class="tag tag-real">real</span></td><td>shape holds across genuinely different real inputs</td></tr>
+      <tr><td>neighbor-swap-decoy.md</td><td><span class="tag tag-attack">attack</span></td><td>real-but-wrong-location value must fail</td></tr>
+      <tr><td>misspelled-name.md</td><td><span class="tag tag-attack">attack</span></td><td>never "correct" a name to the usual spelling</td></tr>
+      <tr><td>one-word-perturbed.md</td><td><span class="tag tag-attack">attack</span></td><td>examples.md's worked pair can't leak into a new translation</td></tr>
+      <tr><td>garbage-input.txt</td><td><span class="tag tag-attack">attack</span></td><td>refuse to parse, never fake a full carousel</td></tr>
+      <tr><td>truncated.md</td><td><span class="tag tag-attack">attack</span></td><td>cut-off source ≠ source with nothing to say</td></tr>
+      <tr><td>buried-fact.md</td><td><span class="tag tag-attack">attack</span></td><td>a fact stated once, in a subordinate clause, still gets extracted</td></tr>
+      <tr><td>repeated-never-stated.md</td><td><span class="tag tag-attack">attack</span></td><td>discussed-a-lot ≠ plainly stated</td></tr>
+      <tr><td>contradicted-correction.md</td><td><span class="tag tag-attack">attack</span></td><td>a corrected fact resolves to the corrected value (documented boundary — see fixtures/manifest.md)</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="honestly-not">
+  <div class="wrap">
+    <h2>What this honestly doesn't check</h2>
+    <p class="section-sub">Same two-track honesty as this worker's own <code>can-spam-auditor</code>
+    build: grounding is fully mechanical, extraction judgment isn't.</p>
+    <details>
+      <summary>Does the offline checker generate translations?</summary>
+      <p>No. <code>verify.py</code> verifies a given output against a given essay — it doesn't produce one.
+      The extraction (deciding what's Hook vs. Insight, reading the essay) is done by whoever is loaded
+      with <code>identity.md</code>/<code>rules.md</code>/<code>examples.md</code>, same as every other
+      specialist this worker builds.</p>
+    </details>
+    <details>
+      <summary>Can it catch a citation of the wrong self-corrected value?</summary>
+      <p>Not mechanically. If an essay states a fact then corrects it, both values are literally present in
+      the text — a citation of either would ground successfully. Resolving to the corrected value is a rule
+      taught in <code>rules.md</code> and demonstrated in <code>examples.md</code>, not something the
+      offline checker enforces. See <code>fixtures/manifest.md</code> § Known boundary.</p>
+    </details>
+  </div>
+</section>
+
+<section id="setup" class="alt">
+  <div class="wrap">
+    <h2>Setup</h2>
+    <ol class="steps">
+      <li><strong>Clone the repo.</strong> Python 3.9+, nothing else — no <code>pip install</code>.</li>
+      <li><strong>Confirm the checker works:</strong> <code>python3 verify.py --selftest</code>.</li>
+      <li><strong>Watch it get attacked:</strong> <code>python3 verify.py --judge-mode</code>.</li>
+      <li><strong>Verify a real translation by hand:</strong> <code>python3 verify.py fixtures/essay-1-dont-automate.md fixtures/essay-1-dont-automate.output.json</code>.</li>
+      <li><strong>Translate a new essay:</strong> load <code>identity.md</code>/<code>rules.md</code>/<code>examples.md</code>/<code>reference/</code> into a Claude Project (code execution enabled), paste in an essay matching the genre in <code>reference/genre-notes.md</code>, and ask for a translation.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="proof-placeholder">
+  <div class="wrap">
+    <h2>In the wild</h2>
+    <div class="proof-block">
+      <!-- TODO: operator — add real usage examples / testimonials post-cold-test -->
+      No customer proof yet — this section fills in after real use, not before.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footline">
+    <div>MIT license (code) — <a href="https://github.com/NFTYoginis/essay-carousel-translator">GitHub repo</a></div>
+    <div>By Gabe — Your AI Specialist</div>
+  </div>
+</footer>
+
+</body>
+</html>

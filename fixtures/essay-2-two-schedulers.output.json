@@ -1,0 +1,96 @@
+{
+  "source": "essay-2-two-schedulers.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "I said the local, laptop-based version would stay on as a backup while I worked out a real fix for the cloud version. It got hit.",
+      "citations": [
+        {
+          "quote": "I said the local, laptop-based version would stay on as a backup while I worked out a real fix for the cloud version.",
+          "loc": "p1s2"
+        },
+        {
+          "quote": "It got hit.",
+          "loc": "p2s1"
+        }
+      ]
+    },
+    {
+      "role": "Incident",
+      "text": "What I found instead was two actual duplicate posts, live on the real account. Not a display glitch. Two separate captions, each published twice.",
+      "citations": [
+        {
+          "quote": "What I found instead was two actual duplicate posts, live on the real account.",
+          "loc": "p4s1"
+        },
+        {
+          "quote": "Two separate captions, each published twice.",
+          "loc": "p4s3"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "The cloud scheduler and the laptop backup share their sense of \"what's already posted\" through one common record. That record had quietly stopped syncing cleanly between the two sometime around midday.",
+      "citations": [
+        {
+          "quote": "The cloud scheduler and the laptop backup share their sense of \"what's already posted\" through one common record.",
+          "loc": "p5s1"
+        },
+        {
+          "quote": "That record had quietly stopped syncing cleanly between the two sometime around midday",
+          "loc": "p5s2"
+        }
+      ]
+    },
+    {
+      "role": "Insight",
+      "text": "The log is not the same thing as the account's real state. When something looks off, check the account, not the file that's supposed to describe it.",
+      "citations": [
+        {
+          "quote": "the log is not the same thing as the account's real state",
+          "loc": "p7s3"
+        },
+        {
+          "quote": "When something looks off, check the account, not the file that's supposed to describe it.",
+          "loc": "p7s4"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text \u2014 and sends an alert naming the exact duplicate so a person can remove it by hand.",
+      "citations": [
+        {
+          "quote": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text.",
+          "loc": "p12s2"
+        },
+        {
+          "quote": "sends an alert naming the exact duplicate so a person can remove it by hand, in the app, which is the only path that actually works",
+          "loc": "p12s3"
+        }
+      ]
+    },
+    {
+      "role": "Close",
+      "text": "I still need to finish subscribing my own phone to it before I can call the loop actually closed \u2014 the code is proven; whether it reaches me every time isn't confirmed yet, and I'd rather say that plainly than round it up to done.",
+      "citations": [
+        {
+          "quote": "the code is proven; whether it reaches me every time isn't confirmed yet, and I'd rather say that plainly than round it up to done",
+          "loc": "p14s3"
+        }
+      ]
+    }
+  ]
+}

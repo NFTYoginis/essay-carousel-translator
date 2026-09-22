@@ -1,0 +1,60 @@
+{
+  "source": "one-word-perturbed.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Incident",
+      "text": "macOS quietly refusing it read access to a folder on my Desktop, forty-four times over.",
+      "citations": [
+        {
+          "quote": "macOS quietly refusing it read access to a folder on my Desktop, forty-four times over",
+          "loc": "p2s3"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Insight",
+      "text": "I'd tested the script. I hadn't tested the absence of me.",
+      "citations": [
+        {
+          "quote": "I'd tested the script.",
+          "loc": "p4s1"
+        },
+        {
+          "quote": "I hadn't tested the absence of me.",
+          "loc": "p4s2"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Close",
+      "text": "not in source",
+      "citations": []
+    }
+  ]
+}

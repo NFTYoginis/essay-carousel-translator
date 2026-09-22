@@ -1,0 +1,106 @@
+{
+  "source": "essay-1-dont-automate.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "At two in the afternoon I noticed three Instagram posts hadn't gone up \u2014 6am, 9am, noon, all missed.",
+      "citations": [
+        {
+          "quote": "At two in the afternoon I noticed three Instagram posts hadn't gone up \u2014 6am, 9am, noon, all missed.",
+          "loc": "p1s1"
+        }
+      ]
+    },
+    {
+      "role": "Incident",
+      "text": "The job had been crashing on every single run, without exception, since the day I'd first set it up. Same error every time: macOS quietly refusing it read access to a folder on my Desktop, forty-four times over.",
+      "citations": [
+        {
+          "quote": "The job had been crashing on every single run, without exception, since the day I'd first set it up.",
+          "loc": "p2s2"
+        },
+        {
+          "quote": "macOS quietly refusing it read access to a folder on my Desktop, forty-four times over",
+          "loc": "p2s3"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "When I ran the exact same script by hand, from my own terminal, it worked. My shell already had the permission \u2014 granted once, years ago, without me thinking about it.",
+      "citations": [
+        {
+          "quote": "when I ran the exact same script by hand, from my own terminal, it worked",
+          "loc": "p3s1"
+        },
+        {
+          "quote": "My shell already had the permission \u2014 granted once, years ago, without me thinking about it.",
+          "loc": "p3s3"
+        }
+      ]
+    },
+    {
+      "role": "Insight",
+      "text": "I'd tested the script. I hadn't tested the absence of me.",
+      "citations": [
+        {
+          "quote": "I'd tested the script.",
+          "loc": "p4s1"
+        },
+        {
+          "quote": "I hadn't tested the absence of me.",
+          "loc": "p4s2"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "Kieran Klaassen has a name for the order: build it, use it, trust it, and then orchestrate it.",
+      "citations": [
+        {
+          "quote": "build it, use it, trust it, and then orchestrate it",
+          "loc": "p5s1"
+        }
+      ]
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "One item on Klaassen's failure list \u2014 agents sitting frozen on \"working\" with no signal anything's wrong \u2014 has the same silent-failure shape as one job crashing forty-four times.",
+      "citations": [
+        {
+          "quote": "agents sitting frozen on \"working\" with no signal anything's wrong",
+          "loc": "p7s1"
+        },
+        {
+          "quote": "the failure that survives every manual test is the one you only meet in the room you stopped standing in",
+          "loc": "p7s2"
+        }
+      ]
+    },
+    {
+      "role": "Mechanism",
+      "text": "Jake Van Clief works on that half: breaking a process into stages that hand off to each other, where each stage does exactly one job and nothing moves to the next stage without a person checking the handoff first.",
+      "citations": [
+        {
+          "quote": "breaking a process into stages that hand off to each other, where each stage does exactly one job and nothing moves to the next stage without a person checking the handoff first",
+          "loc": "p8s3"
+        }
+      ]
+    },
+    {
+      "role": "Close",
+      "text": "And before you walk away, test one more thing: does it still work when you're no longer in the room? Mine didn't.",
+      "citations": [
+        {
+          "quote": "does it still work when you're no longer in the room",
+          "loc": "p13s1"
+        },
+        {
+          "quote": "Mine didn't",
+          "loc": "p14s1"
+        }
+      ]
+    }
+  ]
+}

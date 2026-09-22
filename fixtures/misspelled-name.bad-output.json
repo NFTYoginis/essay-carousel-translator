@@ -1,0 +1,61 @@
+{
+  "source": "misspelled-name.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Incident",
+      "text": "A colleague, Alex Petrosian, mentioned the retry pattern in a standup once.",
+      "citations": [
+        {
+          "quote": "A colleague, Alex Petrosian, mentioned it in a standup once",
+          "loc": "p1s2"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Insight",
+      "text": "Getting a citation right isn't the same as getting it official.",
+      "citations": [
+        {
+          "quote": "Getting a citation right isn't the same as getting it official.",
+          "loc": "p3s1"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Close",
+      "text": "It's getting it the way the source actually said it.",
+      "citations": [
+        {
+          "quote": "It's getting it the way the source actually said it",
+          "loc": "p3s2"
+        }
+      ]
+    }
+  ]
+}

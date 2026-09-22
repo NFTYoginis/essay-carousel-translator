@@ -1,0 +1,31 @@
+MIT License
+
+Copyright (c) 2026 Gabe — Your AI Specialist
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Note: fixtures/essay-1-dont-automate.md, fixtures/essay-2-two-schedulers.md, and
+fixtures/essay-3-demo-bugs.md are real essays from the operator's own published
+content pipeline (~/Desktop/the-quiet-ai/writing/), included here as committed,
+runnable examples per the competition's own requirement that at least one real
+input be committed so the translator can be run. They are not covered by the MIT
+license above — they remain the operator's own content, reproduced here as
+fixtures, not offered for reuse.

@@ -1,0 +1,75 @@
+{
+  "source": "buried-fact.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "We scheduled the database migration for a Friday night, expecting it to run over the weekend and be done by Monday standup. It wasn't.",
+      "citations": [
+        {
+          "quote": "We scheduled the database migration for a Friday night, expecting it to run over the weekend and be done by Monday standup.",
+          "loc": "p1s1"
+        },
+        {
+          "quote": "It wasn't",
+          "loc": "p1s2"
+        }
+      ]
+    },
+    {
+      "role": "Incident",
+      "text": "By Sunday afternoon, barely a third of the rows had moved, and the whole team was back online trying to figure out why.",
+      "citations": [
+        {
+          "quote": "By Sunday afternoon, barely a third of the rows had moved, and the whole team was back online trying to figure out why",
+          "loc": "p1s2"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Insight",
+      "text": "The dashboard turned out to be counting retried rows as new progress each time they retried, so a single stuck batch could inflate the on-screen percentage indefinitely while genuinely doing nothing.",
+      "citations": [
+        {
+          "quote": "turned out to be counting retried rows as new progress each time they retried, so a single stuck batch could inflate the on-screen percentage indefinitely while genuinely doing nothing",
+          "loc": "p2s1"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "We rewrote the progress query to count distinct row IDs instead of retry attempts.",
+      "citations": [
+        {
+          "quote": "We rewrote the progress query to count distinct row IDs instead of retry attempts",
+          "loc": "p3s1"
+        }
+      ]
+    },
+    {
+      "role": "Close",
+      "text": "The migration itself finished the following Wednesday, three days late, with no further surprises once the numbers finally meant what everyone assumed they meant.",
+      "citations": [
+        {
+          "quote": "The migration itself finished the following Wednesday, three days late, with no further surprises once the numbers finally meant what everyone assumed they meant",
+          "loc": "p3s2"
+        }
+      ]
+    }
+  ]
+}

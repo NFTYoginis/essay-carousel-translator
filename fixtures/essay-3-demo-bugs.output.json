@@ -1,0 +1,92 @@
+{
+  "source": "essay-3-demo-bugs.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "Something happened during a live demo of a tool I built, and I want to walk through the actual mechanics of what I did with the recording afterward.",
+      "citations": [
+        {
+          "quote": "Something happened during a live demo of a tool I built",
+          "loc": "p1s1"
+        }
+      ]
+    },
+    {
+      "role": "Incident",
+      "text": "I asked the tool for a five-second video. Nothing came back. Not slow \u2014 nothing.",
+      "citations": [
+        {
+          "quote": "I asked the tool for a five-second video.",
+          "loc": "p2s1"
+        },
+        {
+          "quote": "Nothing came back.",
+          "loc": "p2s2"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "A working demo proves the tool can work once, under conditions you controlled, with every rough edge removed before anyone saw it. A broken demo, left broken, proves something you can't fake.",
+      "citations": [
+        {
+          "quote": "A working demo proves the tool can work once, under conditions you controlled, with every rough edge removed before anyone saw it.",
+          "loc": "p8s1"
+        },
+        {
+          "quote": "A broken demo, left broken, proves something you can't fake",
+          "loc": "p9s1"
+        }
+      ]
+    },
+    {
+      "role": "Insight",
+      "text": "Anyone can have a bug. What you can't manufacture after the fact is an honest reaction to one, on camera, in real time.",
+      "citations": [
+        {
+          "quote": "Anyone can have a bug.",
+          "loc": "p9s3"
+        },
+        {
+          "quote": "What you can't manufacture after the fact is an honest reaction to one, on camera, in real time.",
+          "loc": "p9s4"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "I didn't cut the silence. I didn't re-order anything to make the timing look tighter than it was. I posted the take with the failure in it, in the order it happened.",
+      "citations": [
+        {
+          "quote": "I didn't cut the silence.",
+          "loc": "p10s2"
+        },
+        {
+          "quote": "I posted the take with the failure in it, in the order it happened",
+          "loc": "p10s4"
+        }
+      ]
+    },
+    {
+      "role": "Close",
+      "text": "The version with the mistake still in it is very often the more convincing one, not despite the mistake, but because of what you do with it.",
+      "citations": [
+        {
+          "quote": "The version with the mistake still in it is very often the more convincing one, not despite the mistake, but because of what you do with it.",
+          "loc": "p12s2"
+        }
+      ]
+    }
+  ]
+}

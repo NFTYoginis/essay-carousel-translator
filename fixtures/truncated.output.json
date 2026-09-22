@@ -1,0 +1,78 @@
+{
+  "source": "truncated.md",
+  "truncated_source": true,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "Something happened during a live demo of a tool I built.",
+      "citations": [
+        {
+          "quote": "Something happened during a live demo of a tool I built",
+          "loc": "p1s1"
+        }
+      ]
+    },
+    {
+      "role": "Incident",
+      "text": "I asked the tool for a five-second video. Nothing came back.",
+      "citations": [
+        {
+          "quote": "I asked the tool for a five-second video.",
+          "loc": "p2s1"
+        },
+        {
+          "quote": "Nothing came back.",
+          "loc": "p2s2"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "A working demo proves the tool can work once, under conditions you controlled. A broken demo, left broken, proves something you can't fake.",
+      "citations": [
+        {
+          "quote": "A working demo proves the tool can work once, under conditions you controlled",
+          "loc": "p8s1"
+        },
+        {
+          "quote": "A broken demo, left broken, proves something you can't fake",
+          "loc": "p9s1"
+        }
+      ]
+    },
+    {
+      "role": "Insight",
+      "text": "Anyone can have a bug. What you can't manufacture after the fact is an honest reaction to one, on camera, in real time.",
+      "citations": [
+        {
+          "quote": "Anyone can have a bug.",
+          "loc": "p9s3"
+        },
+        {
+          "quote": "What you can't manufacture after the fact is an honest reaction to one, on camera, in real time.",
+          "loc": "p9s4"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Close",
+      "text": "not in source",
+      "citations": []
+    }
+  ]
+}

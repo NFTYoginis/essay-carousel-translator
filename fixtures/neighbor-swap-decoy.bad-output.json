@@ -1,0 +1,61 @@
+{
+  "source": "neighbor-swap-decoy.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Incident",
+      "text": "A batch job stalled overnight.",
+      "citations": [
+        {
+          "quote": "A batch job stalled overnight",
+          "loc": "p2s2"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Insight",
+      "text": "the real failure had needed nineteen retries before the connection recovered on its own",
+      "citations": [
+        {
+          "quote": "the real failure had needed nineteen retries before the connection recovered on its own",
+          "loc": "p1s2"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "We raised the ceiling and added a log line for every retry past the old limit.",
+      "citations": [
+        {
+          "quote": "We raised the ceiling, added a log line for every retry past the old limit",
+          "loc": "p3s1"
+        }
+      ]
+    },
+    {
+      "role": "Close",
+      "text": "not in source",
+      "citations": []
+    }
+  ]
+}

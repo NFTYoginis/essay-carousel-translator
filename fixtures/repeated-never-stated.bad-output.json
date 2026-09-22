@@ -1,0 +1,66 @@
+{
+  "source": "repeated-never-stated.md",
+  "truncated_source": false,
+  "slides": [
+    {
+      "role": "Hook",
+      "text": "Monday's standup opened with the flaky checkout test again.",
+      "citations": [
+        {
+          "quote": "Monday's standup opened with the flaky checkout test again",
+          "loc": "p1s1"
+        }
+      ]
+    },
+    {
+      "role": "Incident",
+      "text": "It had failed twice overnight, passed on rerun both times.",
+      "citations": [
+        {
+          "quote": "It had failed twice overnight, passed on rerun both times",
+          "loc": "p1s2"
+        }
+      ]
+    },
+    {
+      "role": "Reveal",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Insight",
+      "text": "The real problem was that nobody owned the flaky test.",
+      "citations": [
+        {
+          "quote": "The real problem was that nobody owned the flaky test",
+          "loc": "p3s2"
+        }
+      ]
+    },
+    {
+      "role": "Rule-or-Citation",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Confirmation-at-scale",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Mechanism",
+      "text": "not in source",
+      "citations": []
+    },
+    {
+      "role": "Close",
+      "text": "more discussion, no decision, same test still red on Monday",
+      "citations": [
+        {
+          "quote": "more discussion, no decision, same test still red on Monday",
+          "loc": "p4s1"
+        }
+      ]
+    }
+  ]
+}
