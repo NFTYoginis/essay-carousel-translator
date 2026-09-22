@@ -115,6 +115,7 @@ reference/
   schema.md                      ← the 8-role contract + output JSON format
   grounding-methodology.md       ← the citation coordinate system, ported from can-spam-auditor
   genre-notes.md                 ← the essay genre this targets, and who does this by hand today
+  cold-test-record.md            ← fresh-agent contradiction hunt + fixes + independent honesty-gate verification
 identity.md / rules.md / examples.md   ← the ICM specialist layer
 docs/index.html                  ← this repo's own landing page (GitHub Pages)
 ```
