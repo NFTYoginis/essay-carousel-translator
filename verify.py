@@ -119,7 +119,7 @@ def split_paragraphs(body: str) -> list[str]:
 
 _SENTENCE_BOUNDARY = re.compile(r'[a-zA-Z0-9]{2}[.!?]["\')]?')
 _ABBREVIATION_END = re.compile(
-    r"(?:^|[\s(\"'])(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St|Mt|vs|etc|Inc|Ltd|Co|Corp|Gen|Gov|Sen|Rep|Rev|Hon|Fig|No|approx|e\.g|i\.e|U\.S|U\.K)\.[\"')]?$"
+    r"(?:^|[\s(\"'])(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St|Mt|vs|etc|Inc|Ltd|Co|Corp|Gen|Gov|Sen|Rep|Rev|Hon|Fig|No|approx|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.[\"')]?$"
 )
 _SENTENCE_NEXT = re.compile(r'\s+[A-Z0-9"\'(\[]')
 
@@ -202,15 +202,14 @@ def looks_like_teaching_essay(paragraphs: list[str]) -> bool:
 
 def looks_truncated(raw_text: str) -> bool:
     """Mechanical proxy for 'this essay was cut off mid-thought', distinct
-    from 'this essay genuinely has no Mechanism section'. If the body's last
-    non-empty line doesn't end in terminal punctuation (or a closing quote
+    from 'this essay genuinely has no Mechanism section'. If the last prose
+    paragraph doesn't end in terminal punctuation (or a closing quote
     after one), treat it as truncated -- a real essay's Close slide always
     lands on a finished sentence; a truncated file usually doesn't."""
-    body = extract_body(raw_text).rstrip()
-    if not body:
+    paragraphs = split_paragraphs(extract_body(raw_text))  # a trailing [IMAGE ...] note or heading is not essay prose
+    if not paragraphs:
         return True
-    last_line = body.splitlines()[-1].strip()
-    return not re.search(r'[.!?]["\')]?$', last_line)
+    return not re.search(r'[.!?]["\')]?$', paragraphs[-1])
 
 
 # --------------------------------------------------------------------------
@@ -259,7 +258,7 @@ def resolve_quote(quote: str, loc: str, paragraphs: list[list[str]]):
     re-gate showed every clause-level cut can change meaning ('Critics argue: automation is free, but it never
     is' -> 'automation is free'; a dropped 'No,'; '0.5' -> '0.'). Returns (p, s), 1-indexed, or None."""
     p_idx, s_idx = parse_loc(loc)
-    if p_idx < 1 or p_idx > len(paragraphs):
+    if p_idx < 1 or p_idx > len(paragraphs) or s_idx < 1:
         return None
     sentences = paragraphs[p_idx - 1]
     nq = normalize(quote)
@@ -296,6 +295,8 @@ class ShapeError(Exception):
 
 
 def check_shape(output: dict) -> None:
+    if not isinstance(output, dict):
+        raise ShapeError(f"output must be a JSON object, got {type(output).__name__}")
     slides = output.get("slides")
     if not isinstance(slides, list) or len(slides) != len(SLIDE_ROLES):
         raise ShapeError(
@@ -306,15 +307,19 @@ def check_shape(output: dict) -> None:
     if extra:
         raise ShapeError(f"unexpected top-level key(s) {sorted(extra)}: the contract has source, truncated_source, left_out, slides")
     for slide in output["slides"]:
+        if not isinstance(slide, dict):
+            raise ShapeError(f"every slide must be an object, got {type(slide).__name__}")
         bad = set(slide) - {"role", "text", "citations"}
         if bad:
             raise ShapeError(f"{slide.get('role')}: unexpected key(s) {sorted(bad)} -- only role, text, citations are allowed")
         for c in slide.get("citations", []) if isinstance(slide.get("citations"), list) else []:
             if not isinstance(c, dict) or set(c) - {"quote", "loc"}:
                 raise ShapeError(f"{slide.get('role')}: a citation may carry only quote and loc")
+            if not all(isinstance(c.get(k, ""), str) for k in ("quote", "loc")):
+                raise ShapeError(f"{slide.get('role')}: a citation's quote and loc must be strings")
     left_out = output.get("left_out", [])
     if not isinstance(left_out, list) or any(
-        not isinstance(x, dict) or not {"loc", "role", "why"} <= set(x) for x in left_out
+        not isinstance(x, dict) or not {"loc", "role", "why"} <= set(x) or not isinstance(x["loc"], str) for x in left_out
     ):
         raise ShapeError("left_out must be a list of {loc, role, why} objects")
     for x in left_out:
@@ -323,9 +328,11 @@ def check_shape(output: dict) -> None:
     got_roles = [s.get("role") for s in slides]
     if got_roles != SLIDE_ROLES:
         raise ShapeError(f"slide roles must appear in fixed order {SLIDE_ROLES}, got {got_roles}")
-    if slides[0].get("text", "").strip() == NOT_IN_SOURCE:
+    if any(not isinstance(s.get("text"), str) for s in slides):
+        raise ShapeError("every slide's 'text' must be a string")
+    if slides[0]["text"].strip() == NOT_IN_SOURCE:
         raise ShapeError("Hook is 'not in source': every essay opens somewhere, so Hook is always populated")
-    if slides[-1].get("text", "").strip() == NOT_IN_SOURCE and not output.get("truncated_source"):
+    if slides[-1]["text"].strip() == NOT_IN_SOURCE and not output.get("truncated_source"):
         raise ShapeError("Close is 'not in source' on an essay not marked truncated: every finished essay ends somewhere")
     for slide in slides:
         text = slide.get("text")
@@ -397,7 +404,11 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
     check_shape(output)
 
     for lo in output.get("left_out", []):
-        if window_for_loc(paragraphs, lo["loc"]) is None:
+        try:
+            missing = window_for_loc(paragraphs, lo["loc"]) is None
+        except ValueError as e:
+            raise ShapeError(f"left_out: {e}")
+        if missing:
             raise ShapeError(f"left_out names a location that does not exist in the essay: {lo['loc']!r}")
 
     truncated = looks_truncated(raw_text)
@@ -462,6 +473,8 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
                 real.append(None)
         resolved = [r for r in real if r is not None]
         cited_all.update(resolved)
+        if truncated and (len(paragraphs), len(paragraphs[-1])) in resolved:
+            findings.append(Finding(role, "FAIL", "cites the essay's final sentence, which is cut off mid-sentence in this truncated source -- an unfinished sentence is not a whole sentence, cite only finished ones"))
         if len(resolved) != len(set(resolved)):
             findings.append(Finding(role, "FAIL", "a quote appears twice in this slide's citations -- cite each passage once"))
         elif len(resolved) == len(real) and len(real) > 1:
@@ -477,7 +490,6 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
             except ValueError as e:
                 findings.append(Finding(role, "FAIL", f"malformed citation: {e}"))
                 continue
-            grounded = status == "ok"
             if status == "cut":
                 findings.append(Finding(
                     role, "FAIL",
@@ -485,7 +497,7 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
                     f"-- cut at a bad edge: a quote must be a whole sentence"
                 ))
                 continue
-            if grounded:
+            if status == "ok":
                 findings.append(Finding(role, "PASS", f'"{quote}" grounded at {loc}'))
             else:
                 findings.append(Finding(
@@ -559,6 +571,22 @@ def run_selftest() -> int:
     else:
         ok = False
         print(f"[FAIL] splitter broke a sentence at an abbreviation: {stub}")
+
+    # truncated source: its unfinished last sentence must not be citable as a "whole sentence"
+    try:
+        t_raw = (FIXTURES_DIR / "truncated.md").read_text(encoding="utf-8")
+        t_out = json.loads((FIXTURES_DIR / "truncated.output.json").read_text(encoding="utf-8"))
+        t_par = parse_essay(t_raw)
+        last_q, last_loc = t_par[-1][-1], f"p{len(t_par)}s{len(t_par[-1])}"
+        t_out["slides"][-1].update({"text": last_q, "citations": [{"quote": last_q, "loc": last_loc}]})
+        if any("cut off mid-sentence" in f.message for f in verify_loaded(t_raw, t_out) if f.status == "FAIL"):
+            print("[PASS] truncated source: its unfinished final sentence is refused as a citation")
+        else:
+            ok = False
+            print("[FAIL] truncated source: the unfinished final sentence was accepted as a citation")
+    except (OSError, ShapeError, ValueError, KeyError, IndexError) as e:
+        ok = False
+        print(f"[FAIL] truncated-final-sentence check could not run: {e}")
 
     for essay_name, output_name, expect in FIXTURE_MANIFEST:
         essay_path = FIXTURES_DIR / essay_name
@@ -762,7 +790,7 @@ def _mutations(output: dict):
         m = copy.deepcopy(output); m["slides"][i]["text"] = "\U0001F6AB " + m["slides"][i]["text"]
         yield (f"{role}: symbol injected before text", GATE_EXACT, m)
         # quote cut at a bad edge: first word dropped (mid-clause), or first letter dropped (mid-word)
-        qs = m0 = copy.deepcopy(output)
+        qs = copy.deepcopy(output)
         q0 = qs["slides"][i]["citations"][0]["quote"]
         if len(q0.split()) >= 5:
             qs["slides"][i]["citations"][0]["quote"] = " ".join(q0.split()[1:])
@@ -896,6 +924,9 @@ def main(argv=None) -> int:
         return 2
     except ShapeError as e:
         print(f"error: output shape invalid: {e}", file=sys.stderr)
+        return 2
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        print(f"error: could not read input as JSON/UTF-8: {e}", file=sys.stderr)
         return 2
 
     print(render_report(findings))
