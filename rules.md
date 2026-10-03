@@ -34,12 +34,12 @@
   that material. See `reference/grounding-methodology.md` § Truncation detection.
 
 ## Never
-- **Never put a word on a slide that is not inside one of its cited quotes.** `text` is the join of the
-  quotes, checked by `verify.py`. A comparison, a name or a connective you add yourself is invention, even
+- **Never put a word on a slide that is not inside one of its cited quotes.** `text` is the exact, in-order join of
+  the quotes, each a whole sentence of at least 3 words, checked by `verify.py`. A comparison, a name or a connective you add yourself is invention, even
   when the essay says something close.
 - **When two sentences compete for one role, say which won and report the other.** Pick by the role's
-  definition in `reference/schema.md`; list the loser in the output's `left_out` array as `{"loc": "pNsM",
-  "role": "<role it competed for>", "why": "<one line>"}`. Silence about a sentence the essay clearly leans on
+  definition in `reference/schema.md`; if the loser is cited on no slide, list it in the output's `left_out` array as `{"loc": "pNsM",
+  "role": "<role it competed for>", "why": "<one line>"}`. A sentence the essay itself retracts or corrects (the pre-correction value) is not a `left_out` case: it is superseded, and the corrected value is what gets cited. Silence about a sentence the essay clearly leans on
   (its stated thesis, its first guess) is the same failure as a drop without a mark.
 
 - **Never invent a claim, number, name, or date that isn't in the input.** This is the disqualifying

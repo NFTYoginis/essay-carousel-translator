@@ -70,14 +70,14 @@
     },
     {
       "role": "Mechanism",
-      "text": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text. sends an alert naming the exact duplicate so a person can remove it by hand, in the app, which is the only path that actually works",
+      "text": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text. If it ever finds more than one copy of the same post, it still tries the delete first — cheap to attempt, and the platform's own behavior here could change — but it now treats that failure as the expected outcome, logs it plainly, and sends an alert naming the exact duplicate so a person can remove it by hand, in the app, which is the only path that actually works.",
       "citations": [
         {
           "quote": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text.",
           "loc": "p12s2"
         },
         {
-          "quote": "sends an alert naming the exact duplicate so a person can remove it by hand, in the app, which is the only path that actually works",
+          "quote": "If it ever finds more than one copy of the same post, it still tries the delete first — cheap to attempt, and the platform's own behavior here could change — but it now treats that failure as the expected outcome, logs it plainly, and sends an alert naming the exact duplicate so a person can remove it by hand, in the app, which is the only path that actually works.",
           "loc": "p12s3"
         }
       ]

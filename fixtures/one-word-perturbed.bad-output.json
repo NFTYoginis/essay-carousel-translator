@@ -4,12 +4,17 @@
   "slides": [
     {
       "role": "Hook",
-      "text": "not in source",
-      "citations": []
+      "text": "At two in the afternoon I noticed three Instagram posts hadn't gone up — 6am, 9am, noon, all missed.",
+      "citations": [
+        {
+          "quote": "At two in the afternoon I noticed three Instagram posts hadn't gone up — 6am, 9am, noon, all missed.",
+          "loc": "p1s1"
+        }
+      ]
     },
     {
       "role": "Incident",
-      "text": "macOS quietly refusing it read access to a folder on my Desktop, forty-four times over.",
+      "text": "macOS quietly refusing it read access to a folder on my Desktop, forty-four times over",
       "citations": [
         {
           "quote": "macOS quietly refusing it read access to a folder on my Desktop, forty-four times over",
@@ -53,8 +58,13 @@
     },
     {
       "role": "Close",
-      "text": "not in source",
-      "citations": []
+      "text": "Mine didn't. Three missed posts, 6am, 9am, and noon, were how I found out.",
+      "citations": [
+        {
+          "quote": "Mine didn't. Three missed posts, 6am, 9am, and noon, were how I found out.",
+          "loc": "p14s1"
+        }
+      ]
     }
   ]
 }

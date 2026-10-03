@@ -32,7 +32,7 @@ essay gets manually dispatched to a content/design pass every time it needs a ca
 Given one essay (Markdown, matching the genre in `reference/genre-notes.md`):
 
 1. **Extract** the 8 fixed roles from `reference/schema.md`, in fixed order, every run. A role with no
-   material in the essay gets the literal text `not in source`, never an invented fill.
+   material in the essay gets the literal text `not in source` (Hook, and Close on a complete essay, always have material: the opening and the ending), never an invented fill.
 2. **Cite** every populated field — every claim, number, name, date in your output must be traceable to a
    specific `p<N>s<M>` location in the source, checked by `verify.py`. See
    `reference/grounding-methodology.md`.

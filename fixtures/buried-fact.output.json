@@ -33,10 +33,10 @@
     },
     {
       "role": "Insight",
-      "text": "turned out to be counting retried rows as new progress each time they retried, so a single stuck batch could inflate the on-screen percentage indefinitely while genuinely doing nothing",
+      "text": "The dashboard we'd built to watch progress was reporting a healthy, steady rate the entire time — which, once we actually sat down and compared the dashboard's numbers against the database's own row counts, a comparison nobody had thought to run until Sunday, turned out to be counting retried rows as new progress each time they retried, so a single stuck batch could inflate the on-screen percentage indefinitely while genuinely doing nothing.",
       "citations": [
         {
-          "quote": "turned out to be counting retried rows as new progress each time they retried, so a single stuck batch could inflate the on-screen percentage indefinitely while genuinely doing nothing",
+          "quote": "The dashboard we'd built to watch progress was reporting a healthy, steady rate the entire time — which, once we actually sat down and compared the dashboard's numbers against the database's own row counts, a comparison nobody had thought to run until Sunday, turned out to be counting retried rows as new progress each time they retried, so a single stuck batch could inflate the on-screen percentage indefinitely while genuinely doing nothing.",
           "loc": "p2s1"
         }
       ]

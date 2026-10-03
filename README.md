@@ -51,10 +51,13 @@ restated here so it cannot go stale.
 $ python3 verify.py --matrix
 ```
 
-Plants 107 faults in memory, in the three real committed outputs (quote word swapped, clause appended to
-`text`, one letter changed in `text` only, real quote cited at the wrong paragraph, citation stripped,
-'not in source' slide given a citation, a slide dropped). Each must fail through the gate it names; a fault
-that fails for another reason counts as a miss. With the `text` check switched off, 40 of the 107 get through.
+Plants 337 faults in memory, in the three real committed outputs (a quote word swapped, a clause, symbols or
+a changed letter in `text`, quotes reordered or cited out of source order or twice, a quote cut to one word or
+to part of a sentence, a quote stitched on from a distant paragraph, extra keys, Hook or Close emptied, a
+citation stripped or moved to the wrong paragraph, a slide dropped, a `left_out` that lists a cited sentence).
+Each must fail through the gate it names; a fault that fails for another reason counts as a miss. The build as
+judged in Comp #13 (`19e653e`) catches 67 of the 337 at all. What the checker still cannot judge is listed in
+`fixtures/manifest.md`.
 
 ## The contract, in one sentence
 

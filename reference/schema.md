@@ -24,7 +24,7 @@ narrator's first (wrong) read of it arrive in the opening paragraphs. `Hook` is 
 carries the tension/contradiction; `Incident` is whichever part states the concrete event; on many essays
 these cite adjacent or even overlapping sentences (see `fixtures/essay-1-dont-automate.output.json`, where
 Hook cites p1s1 and Incident cites p2s2-s3 — the same opening scene, split by which specific fact each role
-needs). Two roles may cite the same sentence; `left_out` is only for a sentence that lost every role it competed for. `Reveal` always comes after both, regardless of where the essay's own reveal paragraph sits,
+needs). Two roles may cite the same sentence; `left_out` is only for a sentence the essay leans on that appears on **no slide** because it lost a role. `Reveal` always comes after both, regardless of where the essay's own reveal paragraph sits,
 because a role's position in the carousel is about the role it plays, not the sentence order it was written
 in.
 
@@ -55,19 +55,21 @@ for one, `rules.md` § Never names the exact refusal.
 ```
 
 **`left_out`** is a list (empty when nothing competed) of `{"loc": "pNsM", "role": "<role it competed for>",
-"why": "<one line>"}`: the sentences the essay clearly leans on that lost a role to another sentence. Each `loc`
+"why": "<one line>"}`: the sentences the essay clearly leans on that appear on no slide because they lost a role to another sentence. Each `loc`
 must exist in the essay; `verify.py` checks it. See `rules.md` § Never.
 
 **Every populated field cites at least one location.** `citations[].quote` is checked as a literal
 substring of its own `loc`'s window — see `reference/grounding-methodology.md`. `text` is **the plain join of its
-citation quotes, separated by single spaces, and nothing else**. `verify.py` removes every cited quote from `text`
-(ignoring case) and fails the slide if any word is left; punctuation between quotes is ignored, a word is not (Comp #13: a checker that proves the quote exists is half a gate; this is the other half). No
+citation quotes, in citation order, separated by single spaces, and nothing else**. `verify.py` fails the slide if
+any word of `text` is outside its quotes, if the quotes appear in `text` in a different order or repeated, or if
+any quote is shorter than 3 words (a one-word fragment can be stitched into a sentence the essay never wrote).
+Case and punctuation are not ignored: `text` must equal the join of its quotes exactly (so a question cannot become a statement, nothing can be shouted or decorated). **Each quote is a whole sentence** of the cited window (the cited sentence and one either side, same paragraph): never a clause, a fragment, or a piece of a number. A clause can invert a sentence (`"automation is free"` out of `"Critics argue: automation is free, but it never is."`), so the unit is the sentence. Quotes are at least 3 words. Citations are listed in the order the essay says them (checked against where each quote really sits, not against the loc you wrote), each sentence cited once, from one passage (no two cited sentences more than a paragraph apart). `left_out` never lists a sentence that is cited. Hook is always populated, and Close is populated on any essay not marked truncated. Only the keys in the output format may appear (Comp #13: a checker that proves the quote exists is half a gate; this is the other half). No
 bridging, no paraphrase, no connective the essay does not contain. If a slide needs more context, cite more
 of the essay.
 
 ## The "not in source" rule
 
-If a role has no material in the essay, its `text` field is the literal string `not in source` and its
+**Two roles are never `not in source` on a finished essay:** Hook (cite the essay's opening sentence even when it carries little tension) and Close (cite its last passage; on an essay marked `truncated_source`, Close may be `not in source`). For every other role: if it has no material in the essay, its `text` field is the literal string `not in source` and its
 `citations` list is empty. Never omit the slot. Never invent content to fill it. This is not a fallback for
 error cases — it's an expected, correct output for a large share of real short-form essays (see
 `essay-2-two-schedulers.md` and `essay-3-demo-bugs.md` in `fixtures/`, both of which correctly resolve

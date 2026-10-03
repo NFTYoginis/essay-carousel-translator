@@ -4,15 +4,20 @@
   "slides": [
     {
       "role": "Hook",
-      "text": "not in source",
-      "citations": []
+      "text": "We rebuilt the sync job three times that spring, and every rebuild passed the same test suite before we shipped it.",
+      "citations": [
+        {
+          "quote": "We rebuilt the sync job three times that spring, and every rebuild passed the same test suite before we shipped it.",
+          "loc": "p1s1"
+        }
+      ]
     },
     {
       "role": "Incident",
-      "text": "A batch job stalled overnight.",
+      "text": "Then it didn't. A batch job stalled overnight, and when I finally traced it the next morning, the real failure had needed nineteen retries before the connection recovered on its own — a number the twelve-retry ceiling never gave it the chance to reach, so the job just gave up and silently marked the batch as done anyway.",
       "citations": [
         {
-          "quote": "A batch job stalled overnight",
+          "quote": "Then it didn't. A batch job stalled overnight, and when I finally traced it the next morning, the real failure had needed nineteen retries before the connection recovered on its own — a number the twelve-retry ceiling never gave it the chance to reach, so the job just gave up and silently marked the batch as done anyway.",
           "loc": "p2s2"
         }
       ]
@@ -44,18 +49,23 @@
     },
     {
       "role": "Mechanism",
-      "text": "We raised the ceiling and added a log line for every retry past the old limit.",
+      "text": "We raised the ceiling, added a log line for every retry past the old limit, and moved on.",
       "citations": [
         {
-          "quote": "We raised the ceiling, added a log line for every retry past the old limit",
+          "quote": "We raised the ceiling, added a log line for every retry past the old limit, and moved on.",
           "loc": "p3s1"
         }
       ]
     },
     {
       "role": "Close",
-      "text": "not in source",
-      "citations": []
+      "text": "The twelve-retry number stuck around in three other places in the codebase for another year before anyone found and fixed those too.",
+      "citations": [
+        {
+          "quote": "The twelve-retry number stuck around in three other places in the codebase for another year before anyone found and fixed those too.",
+          "loc": "p3s2"
+        }
+      ]
     }
   ]
 }

@@ -27,7 +27,13 @@ paragraph+sentence window it claims. It does **not** and cannot check:
 
 - Whether a slide's role assignment is the semantically right one (is this really the Insight, not the Hook).
 - Which of two literally-present, self-corrected values is the "final" one (`contradicted-correction.md`).
-- (closed in v2) `text` is the plain join of its quotes, so there is no paraphrase left to judge; `verify.py` fails any word outside the quotes.
+- (closed in v2) `text` is the exact join of its quotes, so there is no paraphrase left to judge.
+- **Still a reader's job (found by the independent re-gate, 2026-10-03):**
+  - Two whole sentences from neighbouring paragraphs, in source order, can read as a claim the essay does not make (cause and effect flipped), and a sentence can mislead when quoted alone. The checker bounds the stitching (whole sentences, source order judged on real positions, same or adjacent paragraph) but cannot judge meaning.
+  - `left_out[].why` is free text; only its `loc` and `role` are checked.
+  - An all-`not in source` middle (Incident through Mechanism) is accepted: absence cannot be proven mechanically. Hook and Close are required.
+  - Parser limits, inherited and unchanged: a heading directly followed by a paragraph with no blank line drops that paragraph; a fixed list of common abbreviations (Dr., Mr., vs., e.g., etc., U.S.) no longer splits a sentence, but any other abbreviation still can and puts a human-counted loc one sentence off; a `---` scene break inside the body ends the body. A quote must carry its sentence's final punctuation and any list marker ("2. Post it as a clean walkthrough."), and two sentences are cited as two quotes; that strictness is deliberate.
+  - A sentence can be a strawman or a setup that the essay then rejects. Quoted alone it passes, because it is a whole real sentence. Only a reader tells.
 
 Those are the specialist's job — taught in `identity.md` / `rules.md`, demonstrated in `examples.md`, and
 checkable by a human reader opening the essay next to the output. `verify.py` is the fail-closed gate for

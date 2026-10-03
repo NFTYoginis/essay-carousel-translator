@@ -66,10 +66,10 @@
     },
     {
       "role": "Confirmation-at-scale",
-      "text": "agents sitting frozen on \"working\" with no signal anything's wrong One job or forty-four, the failure that survives every manual test is the one you only meet in the room you stopped standing in.",
+      "text": "Klaassen's own failure list, at a scale nothing like mine, says this isn't a fluke of small setups: an encoding bug that crashed agents on characters his daemon's encoding couldn't read, agents duplicating or stalling on stale work nobody caught because nobody was watching all forty-four at once, agents sitting frozen on \"working\" with no signal anything's wrong. One job or forty-four, the failure that survives every manual test is the one you only meet in the room you stopped standing in.",
       "citations": [
         {
-          "quote": "agents sitting frozen on \"working\" with no signal anything's wrong",
+          "quote": "Klaassen's own failure list, at a scale nothing like mine, says this isn't a fluke of small setups: an encoding bug that crashed agents on characters his daemon's encoding couldn't read, agents duplicating or stalling on stale work nobody caught because nobody was watching all forty-four at once, agents sitting frozen on \"working\" with no signal anything's wrong.",
           "loc": "p7s1"
         },
         {

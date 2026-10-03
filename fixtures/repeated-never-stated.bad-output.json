@@ -7,17 +7,17 @@
       "text": "Monday's standup opened with the flaky checkout test again.",
       "citations": [
         {
-          "quote": "Monday's standup opened with the flaky checkout test again",
+          "quote": "Monday's standup opened with the flaky checkout test again.",
           "loc": "p1s1"
         }
       ]
     },
     {
       "role": "Incident",
-      "text": "It had failed twice overnight, passed on rerun both times.",
+      "text": "It had failed twice overnight, passed on rerun both times, and nobody had a theory yet beyond \"probably just flaky.\"",
       "citations": [
         {
-          "quote": "It had failed twice overnight, passed on rerun both times",
+          "quote": "It had failed twice overnight, passed on rerun both times, and nobody had a theory yet beyond \"probably just flaky.\"",
           "loc": "p1s2"
         }
       ]
@@ -29,7 +29,7 @@
     },
     {
       "role": "Insight",
-      "text": "The real problem was that nobody owned the flaky test.",
+      "text": "The real problem was that nobody owned the flaky test",
       "citations": [
         {
           "quote": "The real problem was that nobody owned the flaky test",
@@ -54,10 +54,10 @@
     },
     {
       "role": "Close",
-      "text": "more discussion, no decision, same test still red on Monday",
+      "text": "By Friday the test had failed nine more times across the week, someone finally sat down with the full log history side by side, and the standup ended the way it had all week: more discussion, no decision, same test still red on Monday.",
       "citations": [
         {
-          "quote": "more discussion, no decision, same test still red on Monday",
+          "quote": "By Friday the test had failed nine more times across the week, someone finally sat down with the full log history side by side, and the standup ended the way it had all week: more discussion, no decision, same test still red on Monday.",
           "loc": "p4s1"
         }
       ]

@@ -4,12 +4,17 @@
   "slides": [
     {
       "role": "Hook",
-      "text": "not in source",
-      "citations": []
+      "text": "I called the retry pattern the Aleks rule for years before I found out who actually wrote it down first.",
+      "citations": [
+        {
+          "quote": "I called the retry pattern the Aleks rule for years before I found out who actually wrote it down first.",
+          "loc": "p1s1"
+        }
+      ]
     },
     {
       "role": "Incident",
-      "text": "A colleague, Alex Petrosian, mentioned the retry pattern in a standup once.",
+      "text": "A colleague, Alex Petrosian, mentioned it in a standup once",
       "citations": [
         {
           "quote": "A colleague, Alex Petrosian, mentioned it in a standup once",
@@ -49,10 +54,10 @@
     },
     {
       "role": "Close",
-      "text": "It's getting it the way the source actually said it.",
+      "text": "It's getting it the way the source actually said it, even when that's messier than the tidy version everyone assumes is correct.",
       "citations": [
         {
-          "quote": "It's getting it the way the source actually said it",
+          "quote": "It's getting it the way the source actually said it, even when that's messier than the tidy version everyone assumes is correct.",
           "loc": "p3s2"
         }
       ]

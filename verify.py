@@ -118,6 +118,9 @@ def split_paragraphs(body: str) -> list[str]:
 
 
 _SENTENCE_BOUNDARY = re.compile(r'[a-zA-Z0-9]{2}[.!?]["\')]?')
+_ABBREVIATION_END = re.compile(
+    r"(?:^|[\s(\"'])(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St|Mt|vs|etc|Inc|Ltd|Co|Corp|Gen|Gov|Sen|Rep|Rev|Hon|Fig|No|approx|e\.g|i\.e|U\.S|U\.K)\.[\"')]?$"
+)
 _SENTENCE_NEXT = re.compile(r'\s+[A-Z0-9"\'(\[]')
 
 
@@ -137,6 +140,8 @@ def split_sentences(paragraph: str) -> list[str]:
         end = m.end()
         if end >= len(text):
             continue
+        if _ABBREVIATION_END.search(text[:end]):
+            continue  # "Dr. Vance", "vs. the", "e.g. a": not a sentence end (Comp #13 re-gate: a stub cut at "Dr." dropped a retraction)
         if _SENTENCE_NEXT.match(text[end:]):
             split_points.append(end)
     sentences = []
@@ -212,7 +217,7 @@ def looks_truncated(raw_text: str) -> bool:
 # citation coordinates + grounding
 # --------------------------------------------------------------------------
 
-_LOC_RE = re.compile(r"^p(\d+)s(\d+)$")
+_LOC_RE = re.compile(r"^p([0-9]+)s([0-9]+)$", re.ASCII)
 
 
 def parse_loc(loc: str) -> tuple[int, int]:
@@ -248,11 +253,35 @@ def window_for_loc(paragraphs: list[list[str]], loc: str) -> str | None:
     return " ".join(sentences[lo:hi])
 
 
-def quote_is_grounded(quote: str, loc: str, paragraphs: list[list[str]]) -> bool:
+def resolve_quote(quote: str, loc: str, paragraphs: list[list[str]]):
+    """The real (paragraph, sentence) a quote is, found by matching it against the whole sentences of the cited
+    window (cited sentence +/-1, same paragraph). A quote must BE a sentence, not a piece of one: Comp #13
+    re-gate showed every clause-level cut can change meaning ('Critics argue: automation is free, but it never
+    is' -> 'automation is free'; a dropped 'No,'; '0.5' -> '0.'). Returns (p, s), 1-indexed, or None."""
+    p_idx, s_idx = parse_loc(loc)
+    if p_idx < 1 or p_idx > len(paragraphs):
+        return None
+    sentences = paragraphs[p_idx - 1]
+    nq = normalize(quote)
+    for k in range(max(0, s_idx - 2), min(len(sentences), s_idx + 1)):
+        if normalize(sentences[k]) == nq:
+            return (p_idx, k + 1)
+    return None
+
+
+def quote_ground_status(quote: str, loc: str, paragraphs: list[list[str]]) -> str:
+    """'ok' (a whole sentence of the window), 'cut' (inside the window but only part of a sentence) or 'absent'."""
     window = window_for_loc(paragraphs, loc)
     if window is None:
-        return False
-    return normalize(quote) in normalize(window)
+        return "absent"
+    nq = normalize(quote)
+    if not nq or nq not in normalize(window):
+        return "absent"
+    return "ok" if resolve_quote(quote, loc, paragraphs) else "cut"
+
+
+def quote_is_grounded(quote: str, loc: str, paragraphs: list[list[str]]) -> bool:
+    return quote_ground_status(quote, loc, paragraphs) == "ok"
 
 
 # --------------------------------------------------------------------------
@@ -273,14 +302,31 @@ def check_shape(output: dict) -> None:
             f"expected exactly {len(SLIDE_ROLES)} slides, got "
             f"{len(slides) if isinstance(slides, list) else type(slides).__name__}"
         )
+    extra = set(output) - {"source", "truncated_source", "left_out", "slides"}
+    if extra:
+        raise ShapeError(f"unexpected top-level key(s) {sorted(extra)}: the contract has source, truncated_source, left_out, slides")
+    for slide in output["slides"]:
+        bad = set(slide) - {"role", "text", "citations"}
+        if bad:
+            raise ShapeError(f"{slide.get('role')}: unexpected key(s) {sorted(bad)} -- only role, text, citations are allowed")
+        for c in slide.get("citations", []) if isinstance(slide.get("citations"), list) else []:
+            if not isinstance(c, dict) or set(c) - {"quote", "loc"}:
+                raise ShapeError(f"{slide.get('role')}: a citation may carry only quote and loc")
     left_out = output.get("left_out", [])
     if not isinstance(left_out, list) or any(
         not isinstance(x, dict) or not {"loc", "role", "why"} <= set(x) for x in left_out
     ):
         raise ShapeError("left_out must be a list of {loc, role, why} objects")
+    for x in left_out:
+        if x["role"] not in SLIDE_ROLES or not isinstance(x["why"], str) or len(x["why"]) > 240 or set(x) - {"loc", "role", "why"}:
+            raise ShapeError(f"left_out role must be one of the 8 roles and why a one-line string (<=240 chars): {x!r}")
     got_roles = [s.get("role") for s in slides]
     if got_roles != SLIDE_ROLES:
         raise ShapeError(f"slide roles must appear in fixed order {SLIDE_ROLES}, got {got_roles}")
+    if slides[0].get("text", "").strip() == NOT_IN_SOURCE:
+        raise ShapeError("Hook is 'not in source': every essay opens somewhere, so Hook is always populated")
+    if slides[-1].get("text", "").strip() == NOT_IN_SOURCE and not output.get("truncated_source"):
+        raise ShapeError("Close is 'not in source' on an essay not marked truncated: every finished essay ends somewhere")
     for slide in slides:
         text = slide.get("text")
         citations = slide.get("citations")
@@ -312,6 +358,19 @@ class Finding:
     def to_dict(self):
         return {"role": self.role, "status": self.status, "message": self.message}
 
+
+
+MIN_QUOTE_WORDS = 3
+
+
+def _plain(s: str) -> str:
+    """Case, punctuation and whitespace folded away; used to compare text with the in-order join of its quotes."""
+    return re.sub(r"\s+", " ", re.sub(r"[^\w']+", " ", normalize(s).lower())).strip()
+
+
+def _plain_exact(s: str) -> str:
+    """Whitespace-folded but case- and punctuation-preserving form, for comparing text with the exact join."""
+    return re.sub(r"\s+", " ", normalize(s)).strip()
 
 
 def text_outside_quotes(text: str, quotes: list[str]) -> str:
@@ -362,6 +421,7 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
     else:
         findings.append(Finding("(source)", "PASS", "truncated_source flag matches the mechanical check"))
 
+    cited_all: set = set()
     for slide in output["slides"]:
         role = slide["role"]
         text = slide["text"].strip()
@@ -369,20 +429,61 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
         if text == NOT_IN_SOURCE:
             findings.append(Finding(role, "PASS", "not in source -- no citations to check"))
             continue
-        leftover = text_outside_quotes(text, [c.get("quote", "") for c in citations])
+        quotes = [c.get("quote", "") for c in citations]
+        if _plain_exact(text) != _plain_exact(" ".join(quotes)) and not text_outside_quotes(text, quotes) and _plain(text) == _plain(" ".join(quotes)):
+            findings.append(Finding(
+                role, "FAIL",
+                "slide text differs from the exact join of its quotes in case or punctuation -- text must equal the join of its quotes exactly"
+            ))
+        short = [q for q in quotes if len(normalize(q).split()) < MIN_QUOTE_WORDS]
+        if short:
+            findings.append(Finding(
+                role, "FAIL",
+                f"quote shorter than {MIN_QUOTE_WORDS} words ({short[0]!r}) -- fragments this small can be "
+                f"stitched into a sentence the essay never wrote; cite the whole sentence"
+            ))
+        leftover = text_outside_quotes(text, quotes)
         if leftover:
             findings.append(Finding(
                 role, "FAIL",
                 f"slide text carries words that are in none of its cited quotes: "
                 f"{leftover!r} -- text must be the plain join of its quotes"
             ))
+        elif _plain(text) != _plain(" ".join(quotes)):
+            findings.append(Finding(
+                role, "FAIL",
+                "slide text re-orders or repeats its cited quotes -- text must be the in-order join of its quotes"
+            ))
+        real = []
+        for c in citations:
+            try:
+                real.append(resolve_quote(c.get("quote", ""), c.get("loc", ""), paragraphs))
+            except ValueError:
+                real.append(None)
+        resolved = [r for r in real if r is not None]
+        cited_all.update(resolved)
+        if len(resolved) != len(set(resolved)):
+            findings.append(Finding(role, "FAIL", "a quote appears twice in this slide's citations -- cite each passage once"))
+        elif len(resolved) == len(real) and len(real) > 1:
+            if real != sorted(real):
+                findings.append(Finding(role, "FAIL", "citations are not in source order -- cite in the order the essay says them"))
+            if max(r[0] for r in real) - min(r[0] for r in real) > 1:
+                findings.append(Finding(role, "FAIL", "citations span more than two neighbouring paragraphs -- a slide cites one passage, not fragments from across the essay"))
         for c in citations:
             quote = c.get("quote", "")
             loc = c.get("loc", "")
             try:
-                grounded = quote_is_grounded(quote, loc, paragraphs)
+                status = quote_ground_status(quote, loc, paragraphs)
             except ValueError as e:
                 findings.append(Finding(role, "FAIL", f"malformed citation: {e}"))
+                continue
+            grounded = status == "ok"
+            if status == "cut":
+                findings.append(Finding(
+                    role, "FAIL",
+                    f'"{quote}" is in the source window at {loc} but is only part of a sentence '
+                    f"-- cut at a bad edge: a quote must be a whole sentence"
+                ))
                 continue
             if grounded:
                 findings.append(Finding(role, "PASS", f'"{quote}" grounded at {loc}'))
@@ -393,6 +494,9 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
                     f"(checked {loc} +/-1 sentence, same paragraph only -- "
                     f"the words may exist elsewhere in the essay, but not there)",
                 ))
+    for lo in output.get("left_out", []):
+        if parse_loc(lo["loc"]) in cited_all:
+            findings.append(Finding("(left_out)", "FAIL", f"left_out lists {lo['loc']}, a sentence that is cited on a slide -- left_out is for sentences on no slide"))
     return findings
 
 
@@ -448,6 +552,13 @@ def run_selftest() -> int:
                   f"parse_essay() succeeded instead")
         except NotATeachingEssayError:
             print(f"[PASS] {GARBAGE_INPUT}: correctly refused (NotATeachingEssayError)")
+
+    stub = split_sentences("The review concluded the drug is safe, according to Dr. Vance, who later retracted it. Nobody noticed.")
+    if len(stub) == 2 and stub[0].endswith("retracted it."):
+        print("[PASS] splitter keeps 'Dr. Vance' inside its sentence (no citable stub that drops the retraction)")
+    else:
+        ok = False
+        print(f"[FAIL] splitter broke a sentence at an abbreviation: {stub}")
 
     for essay_name, output_name, expect in FIXTURE_MANIFEST:
         essay_path = FIXTURES_DIR / essay_name
@@ -576,6 +687,17 @@ def run_judge_mode() -> int:
 
 GATE_GROUND = "NOT found in the source window"
 GATE_TEXT = "words that are in none of its cited quotes"
+GATE_ORDER = "re-orders or repeats its cited quotes"
+GATE_EXACT = "differs from the exact join of its quotes"
+GATE_CUT = "only part of a sentence"
+GATE_LODUP = "left_out lists"
+GATE_SRCORDER = "not in source order"
+GATE_SPAN = "span more than two neighbouring paragraphs"
+GATE_KEYS = "unexpected"
+GATE_DUP = "appears twice"
+GATE_REQ = "always populated"
+GATE_LEFTOUT = "left_out role must be one of the 8 roles"
+GATE_MINQUOTE = "quote shorter than"
 GATE_SHAPE_COUNT = "expected exactly"
 GATE_SHAPE_CITE = "citations is empty"
 GATE_SHAPE_NIS = "text is 'not in source' but citations is non-empty"
@@ -622,6 +744,63 @@ def _mutations(output: dict):
         pn, sn = parse_loc(loc)
         m["slides"][i]["citations"][0]["loc"] = f"p{pn + 1 if pn < 6 else pn - 1}s{sn}"
         yield (f"{role}: real quote cited at a neighbouring paragraph", GATE_GROUND, m)
+        # quotes reordered in text (needs two or more quotes)
+        if len(slide["citations"]) >= 2:
+            m = copy.deepcopy(output)
+            m["slides"][i]["text"] = " ".join(reversed([c["quote"] for c in m["slides"][i]["citations"]]))
+            yield (f"{role}: cited quotes reordered in text", GATE_ORDER, m)
+        # a quote cut down to one word, text kept in step (stitching fragments)
+        m = copy.deepcopy(output)
+        m["slides"][i]["citations"][0]["quote"] = m["slides"][i]["citations"][0]["quote"].split()[0]
+        m["slides"][i]["text"] = " ".join(c["quote"] for c in m["slides"][i]["citations"])
+        yield (f"{role}: a quote cut to one word", GATE_MINQUOTE, m)
+        # exact-join gates: case, terminal punctuation, injected symbols
+        m = copy.deepcopy(output); m["slides"][i]["text"] = m["slides"][i]["text"].upper()
+        yield (f"{role}: text set to ALL CAPS", GATE_EXACT, m)
+        m = copy.deepcopy(output); m["slides"][i]["text"] += " !!!"
+        yield (f"{role}: symbols appended to text", GATE_EXACT, m)
+        m = copy.deepcopy(output); m["slides"][i]["text"] = "\U0001F6AB " + m["slides"][i]["text"]
+        yield (f"{role}: symbol injected before text", GATE_EXACT, m)
+        # quote cut at a bad edge: first word dropped (mid-clause), or first letter dropped (mid-word)
+        qs = m0 = copy.deepcopy(output)
+        q0 = qs["slides"][i]["citations"][0]["quote"]
+        if len(q0.split()) >= 5:
+            qs["slides"][i]["citations"][0]["quote"] = " ".join(q0.split()[1:])
+            qs["slides"][i]["text"] = " ".join(c["quote"] for c in qs["slides"][i]["citations"])
+            yield (f"{role}: first word of a quote dropped", GATE_CUT, qs)
+        m = copy.deepcopy(output)
+        qq = m["slides"][i]["citations"][0]["quote"]
+        m["slides"][i]["citations"][0]["quote"] = qq[1:]
+        m["slides"][i]["text"] = " ".join(c["quote"] for c in m["slides"][i]["citations"])
+        yield (f"{role}: first letter of a quote dropped", GATE_CUT, m)
+        # citations listed against source order
+        if len(slide["citations"]) >= 2:
+            m = copy.deepcopy(output)
+            m["slides"][i]["citations"] = list(reversed(m["slides"][i]["citations"]))
+            m["slides"][i]["text"] = " ".join(c["quote"] for c in m["slides"][i]["citations"])
+            yield (f"{role}: citations listed against source order", GATE_SRCORDER, m)
+        # the same passage cited twice
+        m = copy.deepcopy(output)
+        m["slides"][i]["citations"].append(copy.deepcopy(m["slides"][i]["citations"][0]))
+        m["slides"][i]["text"] = " ".join(c["quote"] for c in m["slides"][i]["citations"])
+        yield (f"{role}: first passage cited twice", GATE_DUP, m)
+        # claimed locs kept ascending while the real sentence order is reversed (adjacent sentences)
+        cs = slide["citations"]
+        if len(cs) >= 2:
+            (p1, s1), (p2, s2) = parse_loc(cs[0]["loc"]), parse_loc(cs[1]["loc"])
+            if p1 == p2 and s2 - s1 == 1:
+                m = copy.deepcopy(output)
+                a, b = m["slides"][i]["citations"][0], m["slides"][i]["citations"][1]
+                m["slides"][i]["citations"] = [{"quote": b["quote"], "loc": a["loc"]}, {"quote": a["quote"], "loc": b["loc"]}]
+                m["slides"][i]["text"] = " ".join(c["quote"] for c in m["slides"][i]["citations"])
+                yield (f"{role}: real order reversed under ascending claimed locs", GATE_SRCORDER, m)
+        # left_out naming a sentence that is cited
+        m = copy.deepcopy(output)
+        m["left_out"] = [{"loc": slide["citations"][0]["loc"], "role": role, "why": "listed although cited"}]
+        yield (f"{role}: left_out lists a cited sentence", GATE_LODUP, m)
+        # extra key on the slide
+        m = copy.deepcopy(output); m["slides"][i]["caption"] = "Revenue up 400%"
+        yield (f"{role}: extra key on the slide", GATE_KEYS, m)
         # populated slide with its citations stripped
         m = copy.deepcopy(output)
         m["slides"][i]["citations"] = []
@@ -629,6 +808,27 @@ def _mutations(output: dict):
     m = copy.deepcopy(output)
     m["slides"] = m["slides"][:-1]
     yield ("last slide dropped (short output)", GATE_SHAPE_COUNT, m)
+    m = copy.deepcopy(output); m["summary"] = "This post proves AI replaces teachers 100%"
+    yield ("extra top-level key", GATE_KEYS, m)
+    m = copy.deepcopy(output); m["slides"][0].update({"text": NOT_IN_SOURCE, "citations": []})
+    yield ("Hook set to 'not in source'", GATE_REQ, m)
+    if not output.get("truncated_source"):
+        m = copy.deepcopy(output); m["slides"][-1].update({"text": NOT_IN_SOURCE, "citations": []})
+        yield ("Close set to 'not in source' on a complete essay", "every finished essay ends somewhere", m)
+    m = copy.deepcopy(output); m["left_out"] = [{"loc": "p1s1", "role": "Zzz", "why": "invented role"}]
+    yield ("left_out entry with an invented role", GATE_LEFTOUT, m)
+    # far stitching: borrow a quote from a slide two or more paragraphs away
+    pop = [sl for sl in output["slides"] if sl["text"].strip() != NOT_IN_SOURCE]
+    for a in pop:
+        far = [b for b in pop if b is not a and abs(parse_loc(b["citations"][0]["loc"])[0] - parse_loc(a["citations"][-1]["loc"])[0]) >= 2
+               and parse_loc(b["citations"][0]["loc"]) > parse_loc(a["citations"][-1]["loc"])]
+        if far:
+            m = copy.deepcopy(output)
+            sl = next(x for x in m["slides"] if x["role"] == a["role"])
+            sl["citations"].append(copy.deepcopy(far[0]["citations"][0]))
+            sl["text"] = " ".join(c["quote"] for c in sl["citations"])
+            yield (f"{a['role']}: quote from a distant paragraph stitched on", GATE_SPAN, m)
+            break
 
 
 def run_matrix() -> int:

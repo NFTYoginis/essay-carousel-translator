@@ -70,7 +70,7 @@ Close roles (Reveal shown):
 {"role": "Reveal", "text": "It was wrong. The project plan had always said March 10th.",
  "citations": [
    {"quote": "It was wrong.", "loc": "p2s1"},
-   {"quote": "The project plan had always said March 10th", "loc": "p2s2"}
+   {"quote": "The project plan had always said March 10th.", "loc": "p2s2"}
  ]}
 ```
 
