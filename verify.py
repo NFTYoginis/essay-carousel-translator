@@ -21,7 +21,7 @@ role assignment is the right one semantically (is this really the Insight,
 not the Hook?). Only a reader (a person, or Claude loaded with identity.md /
 rules.md / examples.md) does that. verify.py checks one mechanical fact:
 does the cited text actually live where the output says it lives. See
-reference/what-verify-checks.md for the full boundary.
+fixtures/manifest.md (section 'Known boundary') for the full boundary.
 
 Zero third-party dependencies. Zero network calls. Zero API key required.
 
@@ -29,6 +29,7 @@ Usage:
     python3 verify.py <essay.md> <output.json>   # verify one translation
     python3 verify.py --selftest                  # run fixtures/, prove the checker works
     python3 verify.py --judge-mode                 # 4 adversarial checks, live, ~10 seconds
+    python3 verify.py --matrix                     # planted faults, each must fail through its own gate
 """
 from __future__ import annotations
 
@@ -272,6 +273,11 @@ def check_shape(output: dict) -> None:
             f"expected exactly {len(SLIDE_ROLES)} slides, got "
             f"{len(slides) if isinstance(slides, list) else type(slides).__name__}"
         )
+    left_out = output.get("left_out", [])
+    if not isinstance(left_out, list) or any(
+        not isinstance(x, dict) or not {"loc", "role", "why"} <= set(x) for x in left_out
+    ):
+        raise ShapeError("left_out must be a list of {loc, role, why} objects")
     got_roles = [s.get("role") for s in slides]
     if got_roles != SLIDE_ROLES:
         raise ShapeError(f"slide roles must appear in fixed order {SLIDE_ROLES}, got {got_roles}")
@@ -307,11 +313,33 @@ class Finding:
         return {"role": self.role, "status": self.status, "message": self.message}
 
 
+
+def text_outside_quotes(text: str, quotes: list[str]) -> str:
+    """Whatever is left of a slide's `text` after every cited quote is removed
+    (case-insensitive, normalized). Only whitespace and punctuation may remain.
+    Comp #13 lesson: a checker that proves the quote exists is half a gate;
+    this is the other half -- the words next to the quote must also be quotes."""
+    rest = normalize(text).lower()
+    for q in sorted((normalize(q).lower() for q in quotes), key=len, reverse=True):
+        if q:
+            rest = rest.replace(q, " ")
+    rest = re.sub(r"[^\w']+", " ", rest)
+    return re.sub(r"\s+", " ", rest).strip()
+
+
 def run_verify(essay_path: Path, output_path: Path) -> list[Finding]:
     raw_text = essay_path.read_text(encoding="utf-8")
-    paragraphs = parse_essay(raw_text)
     output = json.loads(output_path.read_text(encoding="utf-8"))
+    return verify_loaded(raw_text, output)
+
+
+def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
+    paragraphs = parse_essay(raw_text)
     check_shape(output)
+
+    for lo in output.get("left_out", []):
+        if window_for_loc(paragraphs, lo["loc"]) is None:
+            raise ShapeError(f"left_out names a location that does not exist in the essay: {lo['loc']!r}")
 
     truncated = looks_truncated(raw_text)
     claims_truncated = bool(output.get("truncated_source"))
@@ -341,6 +369,13 @@ def run_verify(essay_path: Path, output_path: Path) -> list[Finding]:
         if text == NOT_IN_SOURCE:
             findings.append(Finding(role, "PASS", "not in source -- no citations to check"))
             continue
+        leftover = text_outside_quotes(text, [c.get("quote", "") for c in citations])
+        if leftover:
+            findings.append(Finding(
+                role, "FAIL",
+                f"slide text carries words that are in none of its cited quotes: "
+                f"{leftover!r} -- text must be the plain join of its quotes"
+            ))
         for c in citations:
             quote = c.get("quote", "")
             loc = c.get("loc", "")
@@ -528,6 +563,105 @@ def run_judge_mode() -> int:
     return 0 if ok else 1
 
 
+
+# --------------------------------------------------------------------------
+# --matrix : planted faults, each must fail through the gate it names
+# --------------------------------------------------------------------------
+# Comp #13 lesson (Jeff Van Leenen's winning harness): a planted invention that
+# fails for the WRONG reason counts as a miss. Each mutation below declares the
+# message its gate prints; the run counts it caught only if THAT message appears.
+# Mutations are applied in memory to the real committed outputs, so they cannot
+# drift out of step with the schema (same idea as map-my-folder's mutated-tree
+# self-test).
+
+GATE_GROUND = "NOT found in the source window"
+GATE_TEXT = "words that are in none of its cited quotes"
+GATE_SHAPE_COUNT = "expected exactly"
+GATE_SHAPE_CITE = "citations is empty"
+GATE_SHAPE_NIS = "text is 'not in source' but citations is non-empty"
+
+REAL_PAIRS = [
+    ("essay-1-dont-automate.md", "essay-1-dont-automate.output.json"),
+    ("essay-2-two-schedulers.md", "essay-2-two-schedulers.output.json"),
+    ("essay-3-demo-bugs.md", "essay-3-demo-bugs.output.json"),
+]
+
+
+def _mutations(output: dict):
+    """Yield (label, declared_gate_substring, mutated_output) for one real output."""
+    import copy
+    for i, slide in enumerate(output["slides"]):
+        if slide["text"].strip() == NOT_IN_SOURCE:
+            m = copy.deepcopy(output)
+            m["slides"][i]["citations"] = [{"quote": "invented", "loc": "p1s1"}]
+            yield (f"{slide['role']}: 'not in source' slide given a citation", GATE_SHAPE_NIS, m)
+            continue
+        role = slide["role"]
+        # quote word swapped, text swapped to match (what a careless writer does)
+        m = copy.deepcopy(output)
+        q = m["slides"][i]["citations"][0]["quote"]
+        words = q.split()
+        words[-1] = "zebra"
+        newq = " ".join(words)
+        m["slides"][i]["citations"][0]["quote"] = newq
+        m["slides"][i]["text"] = " ".join(c["quote"] for c in m["slides"][i]["citations"])
+        yield (f"{role}: last word of a quote replaced", GATE_GROUND, m)
+        # invented clause appended to text only, quotes untouched
+        m = copy.deepcopy(output)
+        m["slides"][i]["text"] += " and nobody ever noticed"
+        yield (f"{role}: invented clause appended to text", GATE_TEXT, m)
+        # one letter changed in text only, quote still clean (the value-vs-quote gap)
+        m = copy.deepcopy(output)
+        t = m["slides"][i]["text"]
+        j = next(k for k, ch in enumerate(t) if ch.isalpha())
+        m["slides"][i]["text"] = t[:j] + ("q" if t[j] != "q" else "z") + t[j + 1:]
+        yield (f"{role}: one letter changed in text, quote clean", GATE_TEXT, m)
+        # quote moved to the neighbouring paragraph's location
+        m = copy.deepcopy(output)
+        loc = m["slides"][i]["citations"][0]["loc"]
+        pn, sn = parse_loc(loc)
+        m["slides"][i]["citations"][0]["loc"] = f"p{pn + 1 if pn < 6 else pn - 1}s{sn}"
+        yield (f"{role}: real quote cited at a neighbouring paragraph", GATE_GROUND, m)
+        # populated slide with its citations stripped
+        m = copy.deepcopy(output)
+        m["slides"][i]["citations"] = []
+        yield (f"{role}: populated slide with no citation", GATE_SHAPE_CITE, m)
+    m = copy.deepcopy(output)
+    m["slides"] = m["slides"][:-1]
+    yield ("last slide dropped (short output)", GATE_SHAPE_COUNT, m)
+
+
+def run_matrix() -> int:
+    print("essay-carousel-translator --matrix")
+    print("Each planted fault must fail through the gate it names. A fault that fails for another reason is a miss.\n")
+    total = caught = 0
+    skipped = 0
+    misses = []
+    for essay_name, output_name in REAL_PAIRS:
+        raw = (FIXTURES_DIR / essay_name).read_text(encoding="utf-8")
+        output = json.loads((FIXTURES_DIR / output_name).read_text(encoding="utf-8"))
+        for label, gate, mutated in _mutations(output):
+            # a neighbour-paragraph move can land on a window that still contains the quote; that
+            # mutation is not a fault, so it is skipped rather than counted either way
+            try:
+                findings = verify_loaded(raw, mutated)
+                msgs = [f.message for f in findings if f.status == "FAIL"]
+            except (ShapeError, ValueError) as e:
+                msgs = [str(e)]
+            if not msgs and "neighbouring paragraph" in label:
+                skipped += 1
+                continue
+            total += 1
+            if any(gate in m for m in msgs):
+                caught += 1
+            else:
+                misses.append(f"{output_name} :: {label} -> expected [{gate}] got {msgs[:1] or 'no FAIL'}")
+    for m in misses:
+        print("  MISS", m)
+    print(f"{caught}/{total} caught through the declared gate" + (f" ({skipped} not-a-fault skipped)" if skipped else ""))
+    return 0 if caught == total else 1
+
+
 # --------------------------------------------------------------------------
 # CLI
 # --------------------------------------------------------------------------
@@ -536,6 +670,8 @@ def run_judge_mode() -> int:
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
 
+    if "--matrix" in argv:
+        return run_matrix()
     if "--judge-mode" in argv:
         return run_judge_mode()
     if "--selftest" in argv:

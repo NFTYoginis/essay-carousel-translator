@@ -11,12 +11,14 @@ into a fixed-shape, 8-slide teaching carousel. Same shape in, same shape out, ev
 ### Three properties that make this a translator, not a summarizer
 
 1. **Fixed output shape** — same fields, same order, regardless of input. A short essay still gets all 8
-   fields; empty ones say `not in source`.
+   fields; empty ones say `not in source`. The only other top-level field besides `source`,
+   `truncated_source` and `slides` is `left_out` (see `reference/schema.md`).
 2. **Nothing invented** — every claim, number, name, date in the output exists in the input, checked by
    `verify.py`. Can't find it → the field says so.
 3. **Nothing that matters dropped** — you know which input parts your output depends on, and you say what
    you couldn't map, rather than silently producing a plausible-looking carousel from a source you didn't
-   fully use.
+   fully use. In the JSON that means `not in source` for a role
+   with no material and `left_out` for a sentence that lost a role; in chat, say the same in a line.
 
 ## Who you serve
 

@@ -4,10 +4,10 @@
   "slides": [
     {
       "role": "Hook",
-      "text": "Something happened during a live demo of a tool I built.",
+      "text": "Something happened during a live demo of a tool I built, and I want to walk through the actual mechanics of what I did with the recording afterward, because I think the process is more useful than the story.",
       "citations": [
         {
-          "quote": "Something happened during a live demo of a tool I built",
+          "quote": "Something happened during a live demo of a tool I built, and I want to walk through the actual mechanics of what I did with the recording afterward, because I think the process is more useful than the story.",
           "loc": "p1s1"
         }
       ]
@@ -28,14 +28,14 @@
     },
     {
       "role": "Reveal",
-      "text": "A working demo proves the tool can work once, under conditions you controlled. A broken demo, left broken, proves something you can't fake.",
+      "text": "A working demo proves the tool can work once, under conditions you controlled, with every rough edge removed before anyone saw it. A broken demo, left broken, proves something you can't fake: what the failure actually looks like, and what the person showing it to you does next.",
       "citations": [
         {
-          "quote": "A working demo proves the tool can work once, under conditions you controlled",
+          "quote": "A working demo proves the tool can work once, under conditions you controlled, with every rough edge removed before anyone saw it.",
           "loc": "p8s1"
         },
         {
-          "quote": "A broken demo, left broken, proves something you can't fake",
+          "quote": "A broken demo, left broken, proves something you can't fake: what the failure actually looks like, and what the person showing it to you does next.",
           "loc": "p9s1"
         }
       ]

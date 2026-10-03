@@ -4,17 +4,17 @@
   "slides": [
     {
       "role": "Hook",
-      "text": "Something happened during a live demo of a tool I built, and I want to walk through the actual mechanics of what I did with the recording afterward.",
+      "text": "Something happened during a live demo of a tool I built, and I want to walk through the actual mechanics of what I did with the recording afterward, because I think the process is more useful than the story.",
       "citations": [
         {
-          "quote": "Something happened during a live demo of a tool I built",
+          "quote": "Something happened during a live demo of a tool I built, and I want to walk through the actual mechanics of what I did with the recording afterward, because I think the process is more useful than the story.",
           "loc": "p1s1"
         }
       ]
     },
     {
       "role": "Incident",
-      "text": "I asked the tool for a five-second video. Nothing came back. Not slow \u2014 nothing.",
+      "text": "I asked the tool for a five-second video. Nothing came back.",
       "citations": [
         {
           "quote": "I asked the tool for a five-second video.",
@@ -28,14 +28,14 @@
     },
     {
       "role": "Reveal",
-      "text": "A working demo proves the tool can work once, under conditions you controlled, with every rough edge removed before anyone saw it. A broken demo, left broken, proves something you can't fake.",
+      "text": "A working demo proves the tool can work once, under conditions you controlled, with every rough edge removed before anyone saw it. A broken demo, left broken, proves something you can't fake: what the failure actually looks like, and what the person showing it to you does next.",
       "citations": [
         {
           "quote": "A working demo proves the tool can work once, under conditions you controlled, with every rough edge removed before anyone saw it.",
           "loc": "p8s1"
         },
         {
-          "quote": "A broken demo, left broken, proves something you can't fake",
+          "quote": "A broken demo, left broken, proves something you can't fake: what the failure actually looks like, and what the person showing it to you does next.",
           "loc": "p9s1"
         }
       ]
@@ -66,14 +66,14 @@
     },
     {
       "role": "Mechanism",
-      "text": "I didn't cut the silence. I didn't re-order anything to make the timing look tighter than it was. I posted the take with the failure in it, in the order it happened.",
+      "text": "I didn't cut the silence. I posted the take with the failure in it, in the order it happened, and noted plainly which parts were still unresolved.",
       "citations": [
         {
           "quote": "I didn't cut the silence.",
           "loc": "p10s2"
         },
         {
-          "quote": "I posted the take with the failure in it, in the order it happened",
+          "quote": "I posted the take with the failure in it, in the order it happened, and noted plainly which parts were still unresolved.",
           "loc": "p10s4"
         }
       ]

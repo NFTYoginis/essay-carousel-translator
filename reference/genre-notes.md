@@ -23,8 +23,10 @@ This is a real, recurring conversion, already done by hand in this operator's ow
 canonical essay gets dispatched manually to a content/design pass each time it needs platform "sibling
 cuts" (LinkedIn / Facebook / Skool / carousel versions of the same piece). `essay-1-dont-automate.md` ships
 with its own real, hand-authored 10-slide carousel in the same source tree
-(`dont-automate-until-taught-carousel.md`) — the ground-truth schema source for this build, and worth
-reading directly to see what a human editor's version of this conversion looks like.
+(`dont-automate-until-taught-carousel.md`) — the source the 8 roles were derived from, and worth
+reading directly to see what a human editor's version of this conversion looks like. The human carousel runs
+10 slides; **the output is always exactly the 8 roles in `reference/schema.md`**, and where the two differ
+the schema wins.
 
 **That hand-authored carousel is not reused verbatim as this translator's output for the same essay.** Its
 slide 1 ("Every test I ran passed. The one test I never ran was the only one that mattered.") is a skilled

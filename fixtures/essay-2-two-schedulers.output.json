@@ -18,7 +18,7 @@
     },
     {
       "role": "Incident",
-      "text": "What I found instead was two actual duplicate posts, live on the real account. Not a display glitch. Two separate captions, each published twice.",
+      "text": "What I found instead was two actual duplicate posts, live on the real account. Two separate captions, each published twice.",
       "citations": [
         {
           "quote": "What I found instead was two actual duplicate posts, live on the real account.",
@@ -32,24 +32,24 @@
     },
     {
       "role": "Reveal",
-      "text": "The cloud scheduler and the laptop backup share their sense of \"what's already posted\" through one common record. That record had quietly stopped syncing cleanly between the two sometime around midday.",
+      "text": "The cloud scheduler and the laptop backup share their sense of \"what's already posted\" through one common record. That record had quietly stopped syncing cleanly between the two sometime around midday — a routine step that keeps both copies in agreement had started failing without making any noise about it.",
       "citations": [
         {
           "quote": "The cloud scheduler and the laptop backup share their sense of \"what's already posted\" through one common record.",
           "loc": "p5s1"
         },
         {
-          "quote": "That record had quietly stopped syncing cleanly between the two sometime around midday",
+          "quote": "That record had quietly stopped syncing cleanly between the two sometime around midday — a routine step that keeps both copies in agreement had started failing without making any noise about it.",
           "loc": "p5s2"
         }
       ]
     },
     {
       "role": "Insight",
-      "text": "The log is not the same thing as the account's real state. When something looks off, check the account, not the file that's supposed to describe it.",
+      "text": "The lesson I keep re-learning in different shapes: the log is not the same thing as the account's real state. When something looks off, check the account, not the file that's supposed to describe it.",
       "citations": [
         {
-          "quote": "the log is not the same thing as the account's real state",
+          "quote": "The lesson I keep re-learning in different shapes: the log is not the same thing as the account's real state.",
           "loc": "p7s3"
         },
         {
@@ -70,7 +70,7 @@
     },
     {
       "role": "Mechanism",
-      "text": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text \u2014 and sends an alert naming the exact duplicate so a person can remove it by hand.",
+      "text": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text. sends an alert naming the exact duplicate so a person can remove it by hand, in the app, which is the only path that actually works",
       "citations": [
         {
           "quote": "A check now runs on its own, watching the account's real, live posts rather than any log file, grouping today's posts by matching caption text.",
@@ -84,10 +84,10 @@
     },
     {
       "role": "Close",
-      "text": "I still need to finish subscribing my own phone to it before I can call the loop actually closed \u2014 the code is proven; whether it reaches me every time isn't confirmed yet, and I'd rather say that plainly than round it up to done.",
+      "text": "I still need to finish subscribing my own phone to it before I can call the loop actually closed — the code is proven; whether it reaches me every time isn't confirmed yet, and I'd rather say that plainly than round it up to done.",
       "citations": [
         {
-          "quote": "the code is proven; whether it reaches me every time isn't confirmed yet, and I'd rather say that plainly than round it up to done",
+          "quote": "I still need to finish subscribing my own phone to it before I can call the loop actually closed — the code is proven; whether it reaches me every time isn't confirmed yet, and I'd rather say that plainly than round it up to done.",
           "loc": "p14s3"
         }
       ]

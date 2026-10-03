@@ -7,21 +7,21 @@
       "text": "We told the team the migration would ship on March 3rd.",
       "citations": [
         {
-          "quote": "We told the team the migration would ship on March 3rd",
+          "quote": "We told the team the migration would ship on March 3rd.",
           "loc": "p1s1"
         }
       ]
     },
     {
       "role": "Incident",
-      "text": "That date went into the release notes, the customer email draft, and two internal Slack channels.",
+      "text": "That date went into the release notes. It went into the customer email draft too, and into two internal Slack channels, before anyone double-checked it against the actual project plan.",
       "citations": [
         {
-          "quote": "That date went into the release notes",
+          "quote": "That date went into the release notes.",
           "loc": "p1s2"
         },
         {
-          "quote": "It went into the customer email draft too, and into two internal Slack channels",
+          "quote": "It went into the customer email draft too, and into two internal Slack channels, before anyone double-checked it against the actual project plan.",
           "loc": "p1s3"
         }
       ]
@@ -35,17 +35,17 @@
           "loc": "p2s1"
         },
         {
-          "quote": "The project plan had always said March 10th",
+          "quote": "The project plan had always said March 10th.",
           "loc": "p2s2"
         }
       ]
     },
     {
       "role": "Insight",
-      "text": "The 3rd was a typo from an earlier draft that got copied forward without anyone catching it.",
+      "text": "The 3rd was a typo from an earlier draft, one that got copied forward without anyone catching it.",
       "citations": [
         {
-          "quote": "The 3rd was a typo from an earlier draft, one that got copied forward without anyone catching it",
+          "quote": "The 3rd was a typo from an earlier draft, one that got copied forward without anyone catching it.",
           "loc": "p2s3"
         }
       ]
@@ -65,7 +65,7 @@
       "text": "We corrected all three the same afternoon.",
       "citations": [
         {
-          "quote": "We corrected all three the same afternoon",
+          "quote": "We corrected all three the same afternoon.",
           "loc": "p3s1"
         }
       ]
@@ -75,7 +75,7 @@
       "text": "The migration did in fact ship on March 10th, on schedule once you're counting from the date that was actually right the whole time.",
       "citations": [
         {
-          "quote": "The migration did in fact ship on March 10th, on schedule once you're counting from the date that was actually right the whole time",
+          "quote": "The migration did in fact ship on March 10th, on schedule once you're counting from the date that was actually right the whole time.",
           "loc": "p3s2"
         }
       ]

@@ -10,7 +10,7 @@ checked live.
 have material, including a named citation (Kieran Klaassen) and a described mechanism (Jake Van Clief's
 stage-handoff framework).
 
-**Output:** `fixtures/essay-1-dont-automate.output.json`. Two slides, abbreviated:
+**Output:** `fixtures/essay-1-dont-automate.output.json`. Two slides, abbreviated. On every slide `text` is exactly the join of its cited quotes; the Rule-or-Citation slide below cites the whole sentence so the attribution to Klaassen is a checked quote, not words added beside one:
 
 ```json
 {"role": "Insight", "text": "I'd tested the script. I hadn't tested the absence of me.",
@@ -22,8 +22,8 @@ stage-handoff framework).
 
 ```json
 {"role": "Rule-or-Citation",
- "text": "Kieran Klaassen has a name for the order: build it, use it, trust it, and then orchestrate it.",
- "citations": [{"quote": "build it, use it, trust it, and then orchestrate it", "loc": "p5s1"}]}
+ "text": "Kieran Klaassen — who runs 44 AI agents across Every's projects, not three Instagram slots — has a name for the order I'd quietly jumped: build it, use it, trust it, and then orchestrate it.",
+ "citations": [{"quote": "Kieran Klaassen — who runs 44 AI agents across Every's projects, not three Instagram slots — has a name for the order I'd quietly jumped: build it, use it, trust it, and then orchestrate it.", "loc": "p5s1"}]}
 ```
 
 **Why this diverges from the essay's own real, hand-authored carousel** (`dont-automate-until-taught-
@@ -61,10 +61,10 @@ nowhere in the source, and `verify.py` fails it accordingly. See `rules.md` § N
 ## Worked example 3 — a self-correction resolves to the corrected value
 
 **Input:** `fixtures/contradicted-correction.md` — a team states a launch date (March 3rd), then corrects it
-(March 10th) two paragraphs later.
+(March 10th) in the next paragraph.
 
 **Output:** `fixtures/contradicted-correction.output.json` cites the corrected value for the Reveal and
-Close roles:
+Close roles (Reveal shown):
 
 ```json
 {"role": "Reveal", "text": "It was wrong. The project plan had always said March 10th.",

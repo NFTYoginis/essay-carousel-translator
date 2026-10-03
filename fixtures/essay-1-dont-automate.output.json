@@ -4,10 +4,10 @@
   "slides": [
     {
       "role": "Hook",
-      "text": "At two in the afternoon I noticed three Instagram posts hadn't gone up \u2014 6am, 9am, noon, all missed.",
+      "text": "At two in the afternoon I noticed three Instagram posts hadn't gone up — 6am, 9am, noon, all missed.",
       "citations": [
         {
-          "quote": "At two in the afternoon I noticed three Instagram posts hadn't gone up \u2014 6am, 9am, noon, all missed.",
+          "quote": "At two in the afternoon I noticed three Instagram posts hadn't gone up — 6am, 9am, noon, all missed.",
           "loc": "p1s1"
         }
       ]
@@ -21,21 +21,21 @@
           "loc": "p2s2"
         },
         {
-          "quote": "macOS quietly refusing it read access to a folder on my Desktop, forty-four times over",
+          "quote": "Same error every time: macOS quietly refusing it read access to a folder on my Desktop, forty-four times over.",
           "loc": "p2s3"
         }
       ]
     },
     {
       "role": "Reveal",
-      "text": "When I ran the exact same script by hand, from my own terminal, it worked. My shell already had the permission \u2014 granted once, years ago, without me thinking about it.",
+      "text": "Here's the part that actually mattered: when I ran the exact same script by hand, from my own terminal, it worked. My shell already had the permission — granted once, years ago, without me thinking about it.",
       "citations": [
         {
-          "quote": "when I ran the exact same script by hand, from my own terminal, it worked",
+          "quote": "Here's the part that actually mattered: when I ran the exact same script by hand, from my own terminal, it worked.",
           "loc": "p3s1"
         },
         {
-          "quote": "My shell already had the permission \u2014 granted once, years ago, without me thinking about it.",
+          "quote": "My shell already had the permission — granted once, years ago, without me thinking about it.",
           "loc": "p3s3"
         }
       ]
@@ -56,24 +56,24 @@
     },
     {
       "role": "Rule-or-Citation",
-      "text": "Kieran Klaassen has a name for the order: build it, use it, trust it, and then orchestrate it.",
+      "text": "Kieran Klaassen — who runs 44 AI agents across Every's projects, not three Instagram slots — has a name for the order I'd quietly jumped: build it, use it, trust it, and then orchestrate it.",
       "citations": [
         {
-          "quote": "build it, use it, trust it, and then orchestrate it",
+          "quote": "Kieran Klaassen — who runs 44 AI agents across Every's projects, not three Instagram slots — has a name for the order I'd quietly jumped: build it, use it, trust it, and then orchestrate it.",
           "loc": "p5s1"
         }
       ]
     },
     {
       "role": "Confirmation-at-scale",
-      "text": "One item on Klaassen's failure list \u2014 agents sitting frozen on \"working\" with no signal anything's wrong \u2014 has the same silent-failure shape as one job crashing forty-four times.",
+      "text": "agents sitting frozen on \"working\" with no signal anything's wrong One job or forty-four, the failure that survives every manual test is the one you only meet in the room you stopped standing in.",
       "citations": [
         {
           "quote": "agents sitting frozen on \"working\" with no signal anything's wrong",
           "loc": "p7s1"
         },
         {
-          "quote": "the failure that survives every manual test is the one you only meet in the room you stopped standing in",
+          "quote": "One job or forty-four, the failure that survives every manual test is the one you only meet in the room you stopped standing in.",
           "loc": "p7s2"
         }
       ]
@@ -83,24 +83,36 @@
       "text": "Jake Van Clief works on that half: breaking a process into stages that hand off to each other, where each stage does exactly one job and nothing moves to the next stage without a person checking the handoff first.",
       "citations": [
         {
-          "quote": "breaking a process into stages that hand off to each other, where each stage does exactly one job and nothing moves to the next stage without a person checking the handoff first",
+          "quote": "Jake Van Clief works on that half: breaking a process into stages that hand off to each other, where each stage does exactly one job and nothing moves to the next stage without a person checking the handoff first.",
           "loc": "p8s3"
         }
       ]
     },
     {
       "role": "Close",
-      "text": "And before you walk away, test one more thing: does it still work when you're no longer in the room? Mine didn't.",
+      "text": "And before you walk away, test one more thing: does it still work when you're no longer in the room? Mine didn't. Three missed posts, 6am, 9am, and noon, were how I found out.",
       "citations": [
         {
-          "quote": "does it still work when you're no longer in the room",
+          "quote": "And before you walk away, test one more thing: does it still work when you're no longer in the room?",
           "loc": "p13s1"
         },
         {
-          "quote": "Mine didn't",
+          "quote": "Mine didn't. Three missed posts, 6am, 9am, and noon, were how I found out.",
           "loc": "p14s1"
         }
       ]
+    }
+  ],
+  "left_out": [
+    {
+      "loc": "p12s4",
+      "role": "Close",
+      "why": "the essay's stated thesis (\"Don't automate the task. Automate the proven behavior.\"); the Close slide quotes the question that earns it instead"
+    },
+    {
+      "loc": "p1s2",
+      "role": "Reveal",
+      "why": "the first guess (\"the laptop had been closed overnight\") that the Reveal contradicts; the Reveal quotes the contradiction, not the guess"
     }
   ]
 }

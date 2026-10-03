@@ -61,3 +61,15 @@ research-claude re-ran `verify.py --selftest` and `--judge-mode` live, read the 
 the current `identity.md`/`rules.md`/`reference/schema.md` text, not just claimed in a commit message.
 **Result: PASS.** This file is the artifact that closes the one non-blocking gap the gate noted — the
 cold-test record living only in a commit message rather than a checkable file.
+
+---
+
+# Cold-test record, round 2 — Comp #13 revision, 2026-10-03
+
+After the Comp #13 judges' feedback, the instruction files were changed (slide `text` is now the plain join of its quotes; `left_out` reports the sentence that lost a role). Two fresh cold readers, no context, same protocol as above (instruction files only; `verify.py`, README and fixtures blocked; asked to find contradictions, not follow rules).
+
+**Round 1** found five. Two were introduced by the revision: (1) `examples.md` Example 1 still showed a Rule-or-Citation slide with uncited words in `text`; (2) `rules.md` required `left_out` but `schema.md`'s output format did not list it. Three were older: a 10-slide human carousel called the "ground-truth schema source" against an 8-role schema; the refusal sentence and the literal `not in source` both described as the output; Example 3 said "two paragraphs later" where the correction sits in the next paragraph. All five fixed.
+
+**Round 2** (after those fixes) found five more: (1) `rules.md` "must still fail" against the ±1-sentence window inside a paragraph; (2) "say what you couldn't map" had no stated slot in the JSON; (3) `schema.md` said Hook and Incident arrive "in the same paragraph" while citing p1 and p2; (4) a trailing full stop in Example 3's `text` that is in no quote, against "nothing else"; (5) the schema table was split by prose, leaving rows 7 and 8 outside it. A sixth, low-risk precedence note (Mechanism "sometimes" `not in source`) was left as is. All five fixed: rules.md now names wrong paragraph or more than one sentence away; identity.md names `not in source` and `left_out`; schema.md says "opening paragraphs" and that two roles may cite the same sentence; punctuation between quotes is stated as ignored by the checker; rows 7 and 8 moved into the table.
+
+**Not run:** a third pass after round 2's fixes. Each round found contradictions the previous one's fixes did not touch, so the instruction layer is not proven clean, only checked twice.

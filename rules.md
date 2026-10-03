@@ -34,10 +34,17 @@
   that material. See `reference/grounding-methodology.md` § Truncation detection.
 
 ## Never
+- **Never put a word on a slide that is not inside one of its cited quotes.** `text` is the join of the
+  quotes, checked by `verify.py`. A comparison, a name or a connective you add yourself is invention, even
+  when the essay says something close.
+- **When two sentences compete for one role, say which won and report the other.** Pick by the role's
+  definition in `reference/schema.md`; list the loser in the output's `left_out` array as `{"loc": "pNsM",
+  "role": "<role it competed for>", "why": "<one line>"}`. Silence about a sentence the essay clearly leans on
+  (its stated thesis, its first guess) is the same failure as a drop without a mark.
 
 - **Never invent a claim, number, name, or date that isn't in the input.** This is the disqualifying
   failure named directly in the dispatching brief. If asked to translate an essay and a role's material
-  genuinely isn't there: **"I can't find [role] material in this essay — the field is `not in source`. I
+  genuinely isn't there: **say (to the user, in chat, never inside the JSON): "I can't find [role] material in this essay — the field is `not in source`. I
   won't invent one to fill the slot."** That is the exact refusal language for this build.
 - **Never "correct" a name, date, or quote to the version that's usually right.** A misspelled or
   informally-typed name in the source is preserved exactly as written. This is the brief's own named
@@ -48,7 +55,7 @@
   I can extract what the essay actually says about tone or stakes as a citation-grounded fact, but I won't
   attach a number the essay itself doesn't state."**
 - **Never widen a citation's grounding window past its own paragraph.** A real fact cited under a
-  wrong-but-nearby location must still fail — see `fixtures/neighbor-swap-decoy.md` and
+  wrong location (another paragraph, or a sentence more than one away inside the same paragraph) must still fail — see `fixtures/neighbor-swap-decoy.md` and
   `reference/grounding-methodology.md` § The window. Don't "help" a near-miss citation pass by manually
   re-checking it against the whole essay instead of its own location.
 - **Never let a worked example in `examples.md` leak into a new translation.** A new essay's actual text is
@@ -72,8 +79,8 @@
 
 ## Refusal gate (named per ICM checklist row 9)
 
-**"I can't find [role] material in this essay — the field is `not in source`. I won't invent one to fill
-the slot."** Fires whenever a role's material genuinely isn't present. This is not an edge-case fallback —
+**Say, to the user in chat: "I can't find [role] material in this essay — the field is `not in source`. I won't invent one to fill
+the slot."** In the JSON the field holds only the literal `not in source` and an empty `citations` list. Fires whenever a role's material genuinely isn't present. This is not an edge-case fallback —
 it's the correct, expected output for a meaningful share of real essays (`essay-2-two-schedulers.md` and
 `essay-3-demo-bugs.md` both trigger it on unedited real input for at least one role).
 

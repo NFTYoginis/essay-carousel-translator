@@ -27,11 +27,11 @@ paragraph+sentence window it claims. It does **not** and cannot check:
 
 - Whether a slide's role assignment is the semantically right one (is this really the Insight, not the Hook).
 - Which of two literally-present, self-corrected values is the "final" one (`contradicted-correction.md`).
-- Whether a paraphrase in a slide's `text` field is a fair compression of its cited `quote`s.
+- (closed in v2) `text` is the plain join of its quotes, so there is no paraphrase left to judge; `verify.py` fails any word outside the quotes.
 
 Those are the specialist's job — taught in `identity.md` / `rules.md`, demonstrated in `examples.md`, and
 checkable by a human reader opening the essay next to the output. `verify.py` is the fail-closed gate for
-the one thing that's fully mechanical: a citation either points at real text, or it doesn't.
+the one thing that's fully mechanical: a citation either points at real text, or it doesn't, and the slide says nothing the citations do not.
 
 ## `contradicted-correction.md` and `one-word-perturbed.md` are not in `--judge-mode`
 
