@@ -28,6 +28,7 @@
   clause, never restated as a headline, is still a fact — see `fixtures/buried-fact.md`. Volume of
   discussion is not the same thing: a topic discussed at length with the actual lesson never plainly stated
   is `not in source` for that role, not a paraphrase of the discussion. See `fixtures/repeated-never-stated.md`.
+- **Keep the Reveal after where the Incident begins.** `verify.py` compares positions: a Reveal citing a sentence before the first Incident citation is a hard FAIL (the first guess landing in the correction's slot); one citing a sentence between the first and last Incident citation is a WARNING (it could belong to either role). The anchor is the first Incident citation, not the last, since the Incident may cite what the mistake cost after the correction. This catches one form of the contradicted-correction case and does not prove the role is right. Check proposed by Valmor Ricardo Reichel.
 - **Flag a truncated source.** If the essay looks cut off mid-thought (ends without a finished sentence),
   set `truncated_source: true` and let the roles past the cutoff resolve to `not in source` honestly,
   rather than either inventing an ending or silently treating the gap the same as an essay that never had

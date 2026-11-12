@@ -359,7 +359,7 @@ def check_shape(output: dict) -> None:
 class Finding:
     def __init__(self, role, status, message):
         self.role = role
-        self.status = status  # PASS | FAIL
+        self.status = status  # PASS | FAIL | WARN (WARN never changes the exit code)
         self.message = message
 
     def to_dict(self):
@@ -391,6 +391,21 @@ def text_outside_quotes(text: str, quotes: list[str]) -> str:
             rest = rest.replace(q, " ")
     rest = re.sub(r"[^\w']+", " ", rest)
     return re.sub(r"\s+", " ", rest).strip()
+
+
+def check_role_order(incident: list, reveal: list) -> tuple[list, list]:
+    """Reveal-vs-Incident position check, on (paragraph, sentence) tuples. Returns (before, band).
+    before: Reveal sentences sitting before the FIRST Incident citation -- a hard fail (the first guess landing in
+      the correction's slot). The anchor is the first Incident citation, deliberately not the last: the Incident
+      slot can legitimately cite a sentence after the correction (what the mistake cost).
+    band: Reveal sentences strictly between the first and last Incident citation -- a warning only, it could
+      belong to either role. Empty when the Incident has one citation.
+    A mechanical position check; it catches one form of the contradicted-correction case and does not prove
+    the role is right. (Proposed by Valmor Ricardo Reichel, Skool thread.)"""
+    if not incident or not reveal:
+        return [], []
+    first, last = min(incident), max(incident)
+    return [r for r in reveal if r < first], [r for r in reveal if first < r < last]
 
 
 def run_verify(essay_path: Path, output_path: Path) -> list[Finding]:
@@ -433,6 +448,7 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
         findings.append(Finding("(source)", "PASS", "truncated_source flag matches the mechanical check"))
 
     cited_all: set = set()
+    resolved_by_role: dict = {}
     for slide in output["slides"]:
         role = slide["role"]
         text = slide["text"].strip()
@@ -473,6 +489,7 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
                 real.append(None)
         resolved = [r for r in real if r is not None]
         cited_all.update(resolved)
+        resolved_by_role[role] = resolved
         if truncated and (len(paragraphs), len(paragraphs[-1])) in resolved:
             findings.append(Finding(role, "FAIL", "cites the essay's final sentence, which is cut off mid-sentence in this truncated source -- an unfinished sentence is not a whole sentence, cite only finished ones"))
         if len(resolved) != len(set(resolved)):
@@ -506,6 +523,20 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
                     f"(checked {loc} +/-1 sentence, same paragraph only -- "
                     f"the words may exist elsewhere in the essay, but not there)",
                 ))
+    before, band = check_role_order(resolved_by_role.get("Incident", []), resolved_by_role.get("Reveal", []))
+    inc_first = min(resolved_by_role["Incident"]) if before or band else None
+    for p, sn in before:
+        findings.append(Finding(
+            "Reveal", "FAIL",
+            f'cites p{p}s{sn} ("{paragraphs[p - 1][sn - 1]}"), a sentence that sits before the first Incident '
+            f"citation (p{inc_first[0]}s{inc_first[1]}) -- the first guess in the correction's slot. "
+            f"Position check only: it does not prove the role is right"))
+    for p, sn in band:
+        findings.append(Finding(
+            "Reveal", "WARN",
+            f'cites p{p}s{sn} ("{paragraphs[p - 1][sn - 1]}"), a sentence between the first and last Incident '
+            f"citation -- it could belong to either role (for example the wrong value still spreading). "
+            f"Not a failure; a reader should confirm it is the correction"))
     for lo in output.get("left_out", []):
         if parse_loc(lo["loc"]) in cited_all:
             findings.append(Finding("(left_out)", "FAIL", f"left_out lists {lo['loc']}, a sentence that is cited on a slide -- left_out is for sentences on no slide"))
@@ -514,9 +545,15 @@ def verify_loaded(raw_text: str, output: dict) -> list[Finding]:
 
 def render_report(findings: list[Finding]) -> str:
     fails = [f for f in findings if f.status == "FAIL"]
-    lines = [f"{len(fails)} FAIL / {len(findings) - len(fails)} PASS", ""]
+    warns = [f for f in findings if f.status == "WARN"]
+    passes = [f for f in findings if f.status == "PASS"]
+    lines = [f"{len(fails)} FAIL / {len(passes)} PASS" + (f" / {len(warns)} WARN" if warns else ""), ""]
     for f in findings:
-        lines.append(f"[{f.status}] {f.role}: {f.message}")
+        if f.status != "WARN":
+            lines.append(f"[{f.status}] {f.role}: {f.message}")
+    if warns:
+        lines += ["", "Warnings (not failures -- the exit code ignores these; a reader confirms them):"]
+        lines += [f"[WARN] {f.role}: {f.message}" for f in warns]
     return "\n".join(lines)
 
 
@@ -543,6 +580,12 @@ FIXTURE_MANIFEST = [
     # literally present in the source (see fixtures/manifest.md's Known boundary
     # note). That judgment is taught in rules.md/examples.md, not enforced here.
     ("contradicted-correction.md", "contradicted-correction.output.json", "PASS"),
+    # Reveal role-order check (proposed by Valmor Ricardo Reichel). "WARN:<text>" = zero FAILs and a WARN containing <text>.
+    # late-incident: Incident cites p2s4 (what the mistake cost), after the correction. Passes under "first Incident"
+    # (and warns, p2s1/p2s2 sit inside the band); a "last Incident" rule would wrongly fail it -- shown in --selftest.
+    ("contradicted-correction.md", "contradicted-correction-late-incident.output.json", "WARN:between the first and last Incident"),
+    ("contradicted-correction.md", "contradicted-correction-first-guess.bad-output.json", "before the first Incident citation"),
+    ("contradicted-correction.md", "contradicted-correction-band.bad-output.json", "WARN:between the first and last Incident"),
 ]
 
 GARBAGE_INPUT = "garbage-input.txt"
@@ -588,6 +631,25 @@ def run_selftest() -> int:
         ok = False
         print(f"[FAIL] truncated-final-sentence check could not run: {e}")
 
+    # first-vs-last: the late-incident fixture is why the anchor is the FIRST Incident citation, not the last
+    try:
+        d_raw = (FIXTURES_DIR / "contradicted-correction.md").read_text(encoding="utf-8")
+        d_out = json.loads((FIXTURES_DIR / "contradicted-correction-late-incident.output.json").read_text(encoding="utf-8"))
+        d_par = parse_essay(d_raw)
+        d_pos = {sl["role"]: [resolve_quote(c["quote"], c["loc"], d_par) for c in sl["citations"]] for sl in d_out["slides"] if sl["citations"]}
+        inc, rev = d_pos["Incident"], d_pos["Reveal"]
+        fails_first = check_role_order(inc, rev)[0]
+        would_fail_last = [r for r in rev if r < max(inc)]
+        if not fails_first and would_fail_last and max(inc) == (2, 4):
+            print(f"[PASS] first-vs-last: Incident cites p2s4; Reveal {['p%ds%d' % r for r in rev]} passes under 'first Incident' "
+                  f"(p{min(inc)[0]}s{min(inc)[1]}) and would FAIL under 'last Incident' (p2s4)")
+        else:
+            ok = False
+            print(f"[FAIL] first-vs-last: expected pass-under-first and fail-under-last, got first-fails={fails_first} last-fails={would_fail_last}")
+    except (OSError, ShapeError, ValueError, KeyError) as e:
+        ok = False
+        print(f"[FAIL] first-vs-last demonstration could not run: {e}")
+
     for essay_name, output_name, expect in FIXTURE_MANIFEST:
         essay_path = FIXTURES_DIR / essay_name
         output_path = FIXTURES_DIR / output_name
@@ -613,7 +675,14 @@ def run_selftest() -> int:
             continue
 
         fails = [f for f in findings if f.status == "FAIL"]
-        if expect == "PASS":
+        if expect.startswith("WARN:"):
+            warns = [f for f in findings if f.status == "WARN" and expect[5:] in f.message]
+            if fails or not warns:
+                ok = False
+                print(f"[FAIL] {output_name}: expected 0 FAILs and a WARN containing {expect[5:]!r}, got FAILs {[f.message for f in fails]}, WARNs {[f.message for f in findings if f.status == 'WARN']}")
+            else:
+                print(f"[PASS] {output_name}: passes with {len(warns)} warning(s), as designed -- {warns[0].role}: {warns[0].message[:80]}...")
+        elif expect == "PASS":
             if fails:
                 ok = False
                 print(f"[FAIL] {output_name}: expected 0 FAILs, got "
@@ -729,6 +798,8 @@ GATE_MINQUOTE = "quote shorter than"
 GATE_SHAPE_COUNT = "expected exactly"
 GATE_SHAPE_CITE = "citations is empty"
 GATE_SHAPE_NIS = "text is 'not in source' but citations is non-empty"
+GATE_ROLE_BEFORE = "before the first Incident citation"  # FAIL
+GATE_ROLE_BAND = "between the first and last Incident"  # WARN: must pass with no FAIL
 
 REAL_PAIRS = [
     ("essay-1-dont-automate.md", "essay-1-dont-automate.output.json"),
@@ -845,6 +916,28 @@ def _mutations(output: dict):
         yield ("Close set to 'not in source' on a complete essay", "every finished essay ends somewhere", m)
     m = copy.deepcopy(output); m["left_out"] = [{"loc": "p1s1", "role": "Zzz", "why": "invented role"}]
     yield ("left_out entry with an invented role", GATE_LEFTOUT, m)
+    # Reveal role-order (Valmor Ricardo Reichel): positions only, so these mutate citations and keep text in step
+    by_role = {sl["role"]: sl for sl in output["slides"]}
+    inc, rev, hook = by_role.get("Incident"), by_role.get("Reveal"), by_role.get("Hook")
+    if inc and rev and hook and inc["citations"] and rev["citations"] and hook["citations"]:
+        if max(parse_loc(c["loc"]) for c in hook["citations"]) < min(parse_loc(c["loc"]) for c in inc["citations"]):
+            m = copy.deepcopy(output)
+            sl = next(x for x in m["slides"] if x["role"] == "Reveal")
+            sl["citations"] = copy.deepcopy(hook["citations"])
+            sl["text"] = " ".join(c["quote"] for c in sl["citations"])
+            yield ("Reveal: cites the Hook's sentence, before the first Incident citation", GATE_ROLE_BEFORE, m)
+        ic = inc["citations"]
+        if len(ic) >= 2:
+            first, second, rfirst = parse_loc(ic[0]["loc"]), parse_loc(ic[1]["loc"]), parse_loc(rev["citations"][0]["loc"])
+            if first < second < rfirst and rfirst[0] - first[0] <= 1:
+                m = copy.deepcopy(output)
+                mi = next(x for x in m["slides"] if x["role"] == "Incident")
+                mr = next(x for x in m["slides"] if x["role"] == "Reveal")
+                mi["citations"] = [copy.deepcopy(ic[0]), copy.deepcopy(rev["citations"][0])]
+                mi["text"] = " ".join(c["quote"] for c in mi["citations"])
+                mr["citations"] = [copy.deepcopy(ic[1])]
+                mr["text"] = ic[1]["quote"]
+                yield ("Reveal: cites a sentence between the first and last Incident citation (warning, must still pass)", GATE_ROLE_BAND, m)
     # far stitching: borrow a quote from a slide two or more paragraphs away
     pop = [sl for sl in output["slides"] if sl["text"].strip() != NOT_IN_SOURCE]
     for a in pop:
@@ -874,6 +967,8 @@ def run_matrix() -> int:
             try:
                 findings = verify_loaded(raw, mutated)
                 msgs = [f.message for f in findings if f.status == "FAIL"]
+                if gate == GATE_ROLE_BAND:  # a warning-band fault must warn and must NOT fail
+                    msgs = [f.message for f in findings if f.status == "WARN"] if not msgs else msgs
             except (ShapeError, ValueError) as e:
                 msgs = [str(e)]
             if not msgs and "neighbouring paragraph" in label:
