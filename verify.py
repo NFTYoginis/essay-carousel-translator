@@ -398,14 +398,14 @@ def check_role_order(incident: list, reveal: list) -> tuple[list, list]:
     before: Reveal sentences sitting before the FIRST Incident citation -- a hard fail (the first guess landing in
       the correction's slot). The anchor is the first Incident citation, deliberately not the last: the Incident
       slot can legitimately cite a sentence after the correction (what the mistake cost).
-    band: Reveal sentences strictly between the first and last Incident citation -- a warning only, it could
+    band: Reveal sentences between the first and last Incident citation AND in the same paragraph as the first -- a warning only, it could
       belong to either role. Empty when the Incident has one citation.
     A mechanical position check; it catches one form of the contradicted-correction case and does not prove
     the role is right. (Proposed by Valmor Ricardo Reichel, Skool thread.)"""
     if not incident or not reveal:
         return [], []
     first, last = min(incident), max(incident)
-    return [r for r in reveal if r < first], [r for r in reveal if first < r < last]
+    return [r for r in reveal if r < first], [r for r in reveal if first < r < last and r[0] == first[0]]
 
 
 def run_verify(essay_path: Path, output_path: Path) -> list[Finding]:
@@ -582,8 +582,8 @@ FIXTURE_MANIFEST = [
     ("contradicted-correction.md", "contradicted-correction.output.json", "PASS"),
     # Reveal role-order check (proposed by Valmor Ricardo Reichel). "WARN:<text>" = zero FAILs and a WARN containing <text>.
     # late-incident: Incident cites p2s4 (what the mistake cost), after the correction. Passes under "first Incident"
-    # (and warns, p2s1/p2s2 sit inside the band); a "last Incident" rule would wrongly fail it -- shown in --selftest.
-    ("contradicted-correction.md", "contradicted-correction-late-incident.output.json", "WARN:between the first and last Incident"),
+    # (no warning: p2s1/p2s2 are in a later paragraph than the first Incident citation); a "last Incident" rule would wrongly fail it -- shown in --selftest.
+    ("contradicted-correction.md", "contradicted-correction-late-incident.output.json", "PASS"),
     ("contradicted-correction.md", "contradicted-correction-first-guess.bad-output.json", "before the first Incident citation"),
     ("contradicted-correction.md", "contradicted-correction-band.bad-output.json", "WARN:between the first and last Incident"),
 ]
